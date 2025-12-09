@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional: kalau mau sedikit tweak global */
+
+body {
+  @apply bg-brand-blue text-black;
+}
+
+/* Hilangkan tap highlight jelek di mobile */
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Hide scrollbar on Chrome/Safari */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar on Firefox */
+.scrollbar-hide {
+  scrollbar-width: none;
+}
