@@ -45,7 +45,7 @@ export default function HeaderNav() {
                   key={tab.href}
                   href={tab.href}
                   className={[
-                    "flex items-center justify-center min-w-[100px] px-6 text-sm leading-none border-2 border-black bg-white transition-all duration-150",
+                    "flex items-center justify-center min-w-[100px] px-6 text-lg font-black leading-none border-[3px] border-black bg-white transition-all duration-150",
                     !active && isFirst && "rounded-bl-[23px]",
                     !active && isLast && "rounded-br-[23px] -ml-[2px]",
                     active && isFirst && "rounded-l-[20px]",
@@ -83,7 +83,7 @@ export default function HeaderNav() {
 
           {/* Menu kecil – DESKTOP */}
           <nav className="hidden flex-1 items-center justify-center md:flex">
-            <div className="flex items-center gap-10 text-md">
+            <div className="flex items-center gap-10 text-md md:text-lg">
               {smallMenu.map((label, index) => {
                 const isActiveSmall = index === 0;
                 return (
@@ -94,7 +94,7 @@ export default function HeaderNav() {
                       "cursor-pointer whitespace-nowrap transition-colors",
                       isActiveSmall
                         ? "font-semibold text-white"
-                        : "font-medium text-white/80 hover:text-white",
+                        : "font-normal text-white/80 hover:text-white text-sm",
                     ].join(" ")}
                   >
                     {label}
@@ -125,7 +125,7 @@ export default function HeaderNav() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-black bg-white shadow-cartoon md:hidden"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border-2 border-black bg-white shadow-cartoonTwo md:hidden active:translate-x-1 active:translate-y-1 active:shadow-none"
               aria-label="Open menu"
             >
               <div className="flex flex-col gap-[3px]">

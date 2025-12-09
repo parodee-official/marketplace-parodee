@@ -60,7 +60,7 @@ function FaceFilterCard() {
   }, []);
 
   return (
-    <div className="rounded-[22px] border-[3.5px] border-black bg-white px-4 py-4 mb-5">
+    <div className="rounded-2xl border-[3px] md:border-[4px] border-black bg-white px-4 py-4 mb-5">
       {/* Title */}
       <p className="text-center text-sm font-bold">Face</p>
 
@@ -106,12 +106,12 @@ export default function FilterSidebar({
 }: FilterSidebarProps) {
   return (
     <aside className="hidden md:w-60 md:block flex-shrink-0">
-      <div className="flex flex-col gap-4 rounded-[23px] border-[3.5px] border-black bg-white p-4 py-8 shadow-cartoon">
+      <div className="flex flex-col gap-4 rounded-[32px] border-[5px] border-black bg-white p-4 py-8 shadow-cartoon">
         {/* Show unlisted */}
         <button
           type="button"
           onClick={onShowUnlistedClick}
-          className="w-full rounded-xl border-[3.5px] border-black bg-white px-4 py-3 text-center text-sm font-bold mb-4"
+          className="w-full rounded-2xl border-[4px] border-black bg-white px-4 py-3 text-center text-sm font-bold mb-4 hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
         >
           Show unlisted
         </button>
@@ -129,7 +129,7 @@ export default function FilterSidebar({
             type="button"
             data-filter-id={filter.id}
             onClick={() => onAttributeFilterClick?.(filter.id)}
-            className="w-full rounded-xl border-[3.5px] border-black bg-white px-4 py-3 text-center text-sm font-bold mb-4"
+            className="w-full rounded-2xl border-[4px] border-black bg-white px-4 py-3 text-center text-sm font-bold mb-4 hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
           >
             {filter.label}
           </button>
@@ -159,7 +159,7 @@ export function MobileFilterSidebar({
       <div
         className="
           absolute left-0 top-0 h-full w-[58%]
-          rounded-r-[24px] border-2 border-black bg-white
+          rounded-r-[32px] border-[3px] border-black bg-white
           p-4 shadow-cartoon
           z-50
           flex flex-col
@@ -171,7 +171,7 @@ export function MobileFilterSidebar({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-black bg-white"
+            className="flex h-7 w-7 items-center justify-center rounded-lg border-[2px] border-black bg-white shadow-cartoonTwo active:translate-x-1 active:translate-y-1 active:shadow-none"
           >
             ✕
           </button>
@@ -189,7 +189,7 @@ export function MobileFilterSidebar({
           <button
             type="button"
             onClick={onShowUnlistedClick}
-            className="mb-5 w-full rounded-xl border-[3.5px] border-black bg-white px-4 py-3 text-center text-sm font-semibold shadow-"
+            className="mb-5 w-full rounded-2xl border-[3px] border-black bg-white px-4 py-3 text-center text-sm font-semibold hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
           >
             Show unlisted
           </button>
@@ -206,7 +206,7 @@ export function MobileFilterSidebar({
               type="button"
               data-filter-id={filter.id}
               onClick={() => onAttributeFilterClick?.(filter.id)}
-              className="mb-2 w-full rounded-xl border-[3.5px] border-black bg-white px-4 py-3 text-center text-sm font-semibold mb-5"
+              className="w-full rounded-2xl border-[3.5px] border-black bg-white px-4 py-3 text-center text-sm font-semibold mb-5 hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
             >
               {filter.label}
             </button>

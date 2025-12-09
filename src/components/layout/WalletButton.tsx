@@ -30,7 +30,7 @@ export default function WalletButton({ label, onClick }: WalletButtonProps) {
     <button
       type="button"
       onClick={handleClick}
-      className="rounded-xl border-2 border-black bg-brand-yellow px-5 py-1.5 text-xs font-bold uppercase tracking-wide shadow-cartoonTwo transition-transform hover:-translate-y-0.5 active:translate-y-0"
+      className="rounded-lg border-[2.5px] border-black bg-brand-yellow px-5 py-1.5 text-xs font-black uppercase tracking-wide shadow-cartoonTwo active:translate-y-1 active:translate-x-1"
     >
       {finalLabel}
     </button>

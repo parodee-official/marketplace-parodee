@@ -28,13 +28,13 @@ export default function CollectToolbar({
   };
 
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-2 sm:gap-3">
+    <div className="mb-10 flex flex-wrap items-center gap-2 sm:gap-3">
 
       {/* Filter icon – mobile only */}
       <button
         type="button"
         onClick={() => onOpenFilter?.()}
-        className="flex h-10 w-10 flex-none items-center justify-center rounded-[16px] border-2 border-black bg-white shadow-cartoon md:hidden"
+        className="flex h-10 w-10 flex-none items-center justify-center rounded-lg border-[3px] border-black bg-white shadow-cartoonTwo md:hidden active:translate-x-1 active:translate-y-1 active:shadow-none"
         aria-label="Open filters"
       >
         <div className="flex flex-col gap-[3px]">
@@ -46,7 +46,7 @@ export default function CollectToolbar({
 
       {/* Search bar — unchanged */}
       <div className="w-full flex-1 min-w-[200px] sm:min-w-[260px]">
-        <div className="flex items-center rounded-[19px] border-2 md:border-[3.5px] border-black bg-white px-3 py-2 sm:px-4 shadow-cartoon">
+        <div className="flex items-center rounded-2xl border-[3px] md:border-[4px] border-black bg-white px-3 py-1 md:py-2 sm:px-4 shadow-cartoonTwo md:shadow-cartoon">
           <input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -71,11 +71,11 @@ export default function CollectToolbar({
           aria-label="Sort by featured"
           aria-pressed={sortMode === "featured"}
           onClick={() => handleSortClick("featured")}
-          className="flex h-5 w-5 items-center justify-center"
+          className="flex h-5 w-5 items-center justify-center hover:translate-x-[1px] hover:translate-y-[1px] active:translate-y-1 active:translate-x-1"
         >
           <div
             className={[
-              "h-5 w-5 rounded-[3px] border-[2px] border-black",
+              "h-5 w-5 rounded-[3px] border-[2.5px] md:border-[3px] border-black",
               sortMode === "featured" ? "bg-brand-yellow" : "bg-white",
             ].join(" ")}
           />
@@ -87,11 +87,11 @@ export default function CollectToolbar({
           aria-label="Sort by newest"
           aria-pressed={sortMode === "newest"}
           onClick={() => handleSortClick("newest")}
-          className="flex h-5 w-5 items-center justify-center"
+          className="flex h-5 w-5 items-center justify-center hover:translate-x-[1px] hover:translate-y-[1px] active:translate-y-1 active:translate-x-1"
         >
           <div
             className={[
-              "h-5 w-5 rounded-full border-[2px] border-black",
+              "h-5 w-5 rounded-full border-[2.5px] md:border-[3px] border-black",
               sortMode === "newest" ? "bg-brand-yellow" : "bg-white",
             ].join(" ")}
           />
@@ -103,7 +103,7 @@ export default function CollectToolbar({
           aria-label="Open sort menu"
           aria-pressed={sortMode === "rarity"}
           onClick={() => onOpenSortMenu?.()}
-          className="flex h-6 w-6 items-center justify-center"
+          className="flex h-6 w-6 items-center justify-center hover:translate-x-[1px] hover:translate-y-[1px] active:translate-y-1 active:translate-x-1 "
         >
           <svg
             viewBox="0 0 24 24"

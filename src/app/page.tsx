@@ -6,6 +6,7 @@ export default async function Home() {
 
   try {
     const data = await openSeaClient.getCollectionNFTs('parodee-pixel-chaos');
+    console.log(data);
     nfts = data.nfts;
   } catch (error) {
     console.error("Failed to load NFTs:", error);
@@ -18,7 +19,7 @@ export default async function Home() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {nfts?.map((nft: any) => (
           <div key={nft.identifier} className="border rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow bg-white">
-            
+
             {/* 2. The Image Component */}
             <div className="relative h-64 w-full bg-gray-200">
               {nft.image_url ? (
@@ -41,7 +42,7 @@ export default async function Home() {
               <h2 className="font-bold text-lg truncate">{nft.name || `#${nft.identifier}`}</h2>
               <p className="text-sm text-gray-500 mt-1 truncate">{nft.description}</p>
             </div>
-            
+
           </div>
         ))}
       </div>

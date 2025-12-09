@@ -2,13 +2,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Collectible } from "@/types/collectible";
 import { useWallet } from "@/context/WalletContext";
 
 type CollectItemModalProps = {
   open: boolean;
-  item: Collectible | null;
+  item: any | null;
   onClose: () => void;
+  floorPriceEth?: number | null; // boleh diabaikan dulu, karena kita skip price
 };
 
 type DetailTab = "attributes" | "activity" | "bids";
@@ -28,51 +28,44 @@ const WALLET_OPTIONS = [
   "Another Wallet",
 ];
 
-const FALLBACK_TRAITS = [
-  { name: "Background", value: "Blue" },
-  { name: "Hat", value: "Yellow" },
-  { name: "Eyes", value: "Pixel" },
-  { name: "Mouth", value: "Smile" },
-];
-
-const FALLBACK_ACTIVITY = [
-  { type: "CANCEL BID", color: "#d1d5db" },
-  { type: "BID", color: "#60a5fa" },
-  { type: "SALE", color: "#4ade80" },
-  { type: "MINT", color: "#fb7185" },
-  { type: "MINT", color: "#fb7185" },
-  { type: "CANCEL BID", color: "#d1d5db" },
-  { type: "BID", color: "#60a5fa" },
-];
-
 export default function CollectItemModal({
   open,
   item,
   onClose,
+  floorPriceEth,
 }: CollectItemModalProps) {
   const { isConnected, connect } = useWallet();
   const [activeTab, setActiveTab] = useState<DetailTab>("attributes");
+  
 
-  // Reset tab ke Attributes saat item berubah
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (item) setActiveTab("attributes");
   }, [item]);
 
   if (!open || !item) return null;
 
-  const priceLabel = item.priceEth ? `${item.priceEth} ETH` : "—";
+  const displayName = item.name || `#${item.identifier}`;
+  const imageUrl = item.image_url || item.display_image_url;
+
+  // someday: item.priceEth / currentListing.price
+  const hasItemPrice = typeof item.priceEth === "number";
+  const effectivePrice = hasItemPrice
+    ? item.priceEth
+    : typeof floorPriceEth === "number"
+    ? floorPriceEth
+    : null;
+
+  const priceLabel = effectivePrice ? `${effectivePrice} ETH` : "—";
 
   const handleConnectClick = async () => {
     await connect();
     setActiveTab("activity");
   };
 
-  const traits = item.traits?.length ? item.traits : FALLBACK_TRAITS;
+  const traits = Array.isArray(item.traits) ? item.traits : [];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-3 sm:px-4">
-      {/* CARD MODAL */}
       <div
         className="
           flex w-full max-w-2xl flex-col
@@ -81,9 +74,8 @@ export default function CollectItemModal({
           p-4 sm:p-6 shadow-cartoon
         "
       >
-        {/* HEADER TOP */}
+        {/* HEADER */}
         <div className="mb-6 flex flex-none gap-4 sm:gap-6">
-          {/* Avatar (image, bukan lagi background) */}
           <div
             className="
               flex h-28 w-28 items-center justify-center
@@ -92,26 +84,26 @@ export default function CollectItemModal({
               overflow-hidden
             "
           >
-            {item.imageUrl ? (
+            {imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={item.imageUrl}
-                alt={item.name}
+                src={imageUrl}
+                alt={displayName}
                 className="h-full w-full object-cover [image-rendering:pixelated]"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-black/10">
                 <span className="px-1 text-[10px] font-semibold text-white drop-shadow-[1px_1px_0_rgba(0,0,0,0.6)] sm:text-xs">
-                  {item.name}
+                  {displayName}
                 </span>
               </div>
             )}
           </div>
 
-          {/* Title + description + price + actions */}
           <div className="flex-1">
             <div className="mb-2 flex items-start justify-between gap-4">
               <h2 className="text-xl font-black leading-tight sm:text-2xl">
-                {item.name}
+                {displayName}
               </h2>
               <button
                 type="button"
@@ -123,10 +115,8 @@ export default function CollectItemModal({
             </div>
 
             <p className="mb-3 text-[10px] leading-snug text-gray-700 sm:text-[11px]">
-              We’re building a universe that can grow into stories, digital
-              experiences, community moments, and anything creative we want to
-              explore, make a world full alive, expressive, and shaped together
-              with the people who love it.
+              {item.description ??
+                "We’re building a universe that can grow into stories, digital experiences, community moments, and anything creative we want to explore."}
             </p>
 
             <p className="text-xl">
@@ -134,15 +124,14 @@ export default function CollectItemModal({
               <span className="font-black">{priceLabel}</span>
             </p>
 
-            {/* Action buttons */}
             <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:gap-3">
               <button
                 type="button"
                 className="
-                  flex-1 rounded-[20px] border-2 border-black bg-white
+                  flex-1 rounded-xl border-2 border-black bg-white
                   px-4 py-2 text-[10px] font-bold uppercase tracking-wide
-                  shadow-cartoonTwo transition-transform
-                  hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#000]
+                  shadow-cartoonTwo
+                  hover:translate-x-1 hover:translate-y-1 hover:shadow-none
                   sm:text-xs
                 "
               >
@@ -151,10 +140,10 @@ export default function CollectItemModal({
               <button
                 type="button"
                 className="
-                  flex-1 rounded-[20px] border-2 border-black bg-brand-yellow
+                  flex-1 rounded-xl border-2 border-black bg-brand-yellow
                   px-4 py-2 text-[10px] font-bold uppercase tracking-wide
-                  shadow-cartoonTwo transition-transform
-                  hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#000]
+                  shadow-cartoonTwo
+                  hover:translate-x-1 hover:translate-y-1 hover:shadow-none
                   sm:text-xs
                 "
               >
@@ -164,7 +153,7 @@ export default function CollectItemModal({
           </div>
         </div>
 
-        {/* LOWER CARD: Tabs + Content (SCROLLABLE AREA) */}
+        {/* BODY */}
         <div
           className="
             flex-1 overflow-y-auto rounded-[24px] border-2 border-black
@@ -173,7 +162,6 @@ export default function CollectItemModal({
             [&::-webkit-scrollbar]:hidden
           "
         >
-          {/* Tabs */}
           <div className="mb-4 flex gap-4 text-[11px] sm:text-xs">
             {DETAIL_TABS.map((tab) => {
               const isActive = activeTab === tab.id;
@@ -195,9 +183,7 @@ export default function CollectItemModal({
             })}
           </div>
 
-          {/* Content area */}
           {!isConnected ? (
-            // BELUM CONNECT WALLET → grid CONNECT WALLET
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {WALLET_OPTIONS.map((label) => (
                 <button
@@ -205,10 +191,10 @@ export default function CollectItemModal({
                   type="button"
                   onClick={handleConnectClick}
                   className="
-                    rounded-[16px] border-2 border-black bg-white
+                    rounded-xl border-2 border-black bg-white
                     px-3 py-3 text-[11px] font-semibold
-                    shadow-cartoonTwo transition-transform
-                    hover:-translate-y-0.5
+                    shadow-cartoonTwo
+                    hover:translate-x-1 hover:translate-y-1 hover:shadow-none
                     sm:text-xs
                   "
                 >
@@ -220,61 +206,44 @@ export default function CollectItemModal({
               ))}
             </div>
           ) : (
-            // SUDAH CONNECT → konten tab beneran
             <div className="min-h-[160px] rounded-[18px] border-2 border-black bg-white px-3 py-2 sm:px-4 sm:py-3">
               {activeTab === "attributes" && (
-                <div className="flex flex-wrap gap-2 text-[10px] sm:text-[11px]">
-                  {traits.map((trait) => (
-                    <div
-                      key={`${trait.name}-${trait.value}`}
-                      className="rounded-[14px] border-2 border-black bg-white px-3 py-1 shadow-cartoon"
-                    >
-                      <div className="text-[8px] uppercase text-gray-500 sm:text-[9px]">
-                        {trait.name}
-                      </div>
-                      <div className="text-[10px] font-semibold sm:text-[11px]">
-                        {trait.value}
-                      </div>
+                <>
+                  {traits.length === 0 ? (
+                    <div className="flex h-full items-center justify-center text-[11px] text-gray-600">
+                      No attributes yet for this NFT.
                     </div>
-                  ))}
-                </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2 text-[10px] sm:text-[11px]">
+                      {traits.map((trait: any) => {
+                        const label =
+                          trait.name ?? trait.trait_type ?? "Trait";
+                        const value =
+                          trait.value ?? trait.trait_value ?? "-";
+                        const key = `${label}-${value}`;
+
+                        return (
+                          <div
+                            key={key}
+                            className="rounded-[14px] border-2 border-black bg-white px-3 py-1 shadow-cartoon"
+                          >
+                            <div className="text-[8px] uppercase text-gray-500 sm:text-[9px]">
+                              {label}
+                            </div>
+                            <div className="text-[10px] font-semibold sm:text-[11px]">
+                              {value}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
               )}
 
               {activeTab === "activity" && (
-                <div className="overflow-x-auto text-[10px] sm:text-[11px]">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="border-b border-black/40 text-left">
-                        <th className="py-2 pr-4">Type</th>
-                        <th className="py-2 pr-4">Seller</th>
-                        <th className="py-2 pr-4">Buyer</th>
-                        <th className="py-2 pr-4">Value</th>
-                        <th className="py-2">Time</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {FALLBACK_ACTIVITY.map((row, idx) => (
-                        <tr key={idx} className="border-b border-black/10">
-                          <td className="py-2 pr-4">
-                            <span
-                              className="
-                                inline-flex items-center rounded-full
-                                border-2 border-black px-2 py-[2px]
-                                text-[8px] font-semibold sm:text-[9px]
-                              "
-                              style={{ backgroundColor: row.color }}
-                            >
-                              {row.type}
-                            </span>
-                          </td>
-                          <td className="py-2 pr-4">0x3256</td>
-                          <td className="py-2 pr-4">Vitalik</td>
-                          <td className="py-2 pr-4">0.3256</td>
-                          <td className="py-2">02/24</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="flex h-full items-center justify-center text-[11px] text-gray-600">
+                  No activity yet for this NFT.
                 </div>
               )}
 

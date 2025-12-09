@@ -58,7 +58,7 @@ export default function WalletConnectModal({
               key={label}
               type="button"
               onClick={handleSelectWallet}
-              className="rounded-[16px] border-2 border-black bg-white px-3 py-3 text-left text-xs font-semibold shadow-cartoon transition-transform hover:-translate-y-0.5"
+              className="rounded-xl border-2 border-black bg-white px-3 py-3 text-left text-xs font-semibold shadow-cartoonTwo  hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
             >
               <div className="mb-1 h-6 w-6 rounded-full border-2 border-black bg-gray-100" />
               <div>{label}</div>
