@@ -207,7 +207,7 @@ export default function CollectItemModal({
                   className="
                     rounded-[16px] border-2 border-black bg-white
                     px-3 py-3 text-[11px] font-semibold
-                    shadow-cartoon transition-transform
+                    shadow-cartoonTwo transition-transform
                     hover:-translate-y-0.5
                     sm:text-xs
                   "
