@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {/* 2. Gunakan Wrapper di sini */}
+        {/*wrapper cok testing yak*/}
         <ThirdwebWrapper>
           <MainLayout>
             {children}
