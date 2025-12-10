@@ -1,7 +1,7 @@
 // src/components/collect/CollectItemModal.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useWallet } from "@/context/WalletContext";
 
 type CollectItemModalProps = {
@@ -35,7 +35,31 @@ const WALLET_OPTIONS = [
 const shortenAddress = (addr: string) => {
   if (!addr) return "-";
   if (addr.length < 8) return addr;
-  return addr.substring(0, 6);
+  return `${addr.substring(0, 4)}...${addr.substring(addr.length - 4)}`;
+};
+
+const formatEventPrice = (event: any) => {
+  try {
+    // Skenario 1: Sale (Biasanya ada di payment)
+    if (event.payment && event.payment.quantity) {
+      const decimals = event.payment.decimals || 18;
+      const symbol = event.payment.symbol || "ETH";
+      const val = parseFloat(event.payment.quantity) / Math.pow(10, decimals);
+      return { value: val, label: `${val.toLocaleString("en-US", { maximumFractionDigits: 4 })} ${symbol}` };
+    }
+
+    // Skenario 2: Listing / Offer (Biasanya ada di start_price atau price)
+    // OpenSea API v2 sering menaruh harga listing di 'start_price' (dalam Wei)
+    const priceRaw = event.start_price || event.price;
+    if (priceRaw) {
+      // Asumsi default ETH/Native jika tidak ada info decimals spesifik di event listing
+      const val = parseFloat(priceRaw) / 1e18;
+      return { value: val, label: `${val.toLocaleString("en-US", { maximumFractionDigits: 4 })} ETH` };
+    }
+  } catch (e) {
+    console.error("Error formatting price:", e);
+  }
+  return { value: 0, label: "—" };
 };
 
 
@@ -64,6 +88,47 @@ export default function CollectItemModal({
     }
     return () => { document.body.style.overflow = "auto"; };
   }, [open]);
+
+  const processedHistory = useMemo(() => {
+    if (!history || !Array.isArray(history)) return [];
+
+    return history.map((event) => {
+      const priceData = formatEventPrice(event);
+      return {
+        ...event,
+        formattedPrice: priceData.label,
+        rawPriceValue: priceData.value,
+        formattedDate: event.event_timestamp
+          ? new Date(event.event_timestamp * 1000).toLocaleString("en-US", {
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit"
+            })
+          : "-",
+        // Normalize addresses
+        fromAddr: event.from_address || event.maker || event.offerer,
+        toAddr: event.to_address || event.taker
+      };
+    });
+  }, [history]);
+
+  // Ambil harga dari event terakhir (Sale atau Listing)
+  const dynamicPrice = useMemo(() => {
+    if (!processedHistory || processedHistory.length === 0) return "Not Listed";
+
+    // Cari event pertama yang memiliki harga valid (Sale atau Listing)
+    const latestPriceEvent = processedHistory.find(
+      (e) => (e.event_type === "sale" || e.event_type === "listing") && e.rawPriceValue > 0
+    );
+
+    if (latestPriceEvent) {
+        return latestPriceEvent.formattedPrice;
+    }
+
+    // Fallback ke dummy atau data listing static jika ada
+    return "Make Offer";
+  }, [processedHistory]);
 
   if (!open || !item) return null;
 
@@ -298,7 +363,7 @@ export default function CollectItemModal({
 
               {activeTab === "activity" && (
                 <div className="overflow-x-auto text-[10px] sm:text-[11px]">
-                  {!history || history.length === 0 ? (
+                  {!processedHistory || processedHistory.length === 0 ? (
                     <div className="flex h-full items-center justify-center p-10 text-sm font-bold text-gray-400">
                       No recent activity.
                     </div>
@@ -315,7 +380,7 @@ export default function CollectItemModal({
                       </thead>
 
                       <tbody>
-                        {history.slice(0, 15).map((event: any, idx: number) => {
+                        {processedHistory.map((event: any, idx: number) => {
                           const fromAddr = event.from_address || event.maker || event.offerer;
                           const toAddr = event.to_address || event.taker;
 
@@ -330,7 +395,7 @@ export default function CollectItemModal({
                           }
 
                           return (
-                            <tr key={idx} className="border-b border-black/10">
+                            <tr key={`${event.id}-${idx}`} className="border-b border-black/10">
                               <td className="py-2 pr-4">
                                 <span
                                   className="
@@ -345,7 +410,8 @@ export default function CollectItemModal({
 
                               <td className="py-2 pr-4">{shortenAddress(fromAddr)}</td>
                               <td className="py-2 pr-4">{shortenAddress(toAddr)}</td>
-                              <td className="py-2 pr-4">{priceDisplay}</td>
+                              {/* <td className="py-2 pr-4">{priceDisplay}</td> */}
+                              <td className="py-2 pr-4">{event.formattedPrice}</td>
 
                               <td className="py-2">
                                 {event.event_timestamp
