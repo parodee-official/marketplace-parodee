@@ -1,0 +1,17 @@
+name: Deploy to Vercel via Deploy Hook
+
+on:
+  push:
+    branches:
+      - main   # atau "production" / branch yang lo pakai buat deploy
+
+jobs:
+  call-vercel-deploy-hook:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Call Vercel Deploy Hook
+        run: |
+          curl -X POST "$VERCEL_DEPLOY_HOOK"
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
