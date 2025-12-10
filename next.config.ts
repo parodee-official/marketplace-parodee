@@ -1,10 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // In Next.js 15 & 16, this MUST be at the top level
+  serverExternalPackages: ["pino", "thread-stream", "pino-worker"],
+
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        // Use ** to allow i.seadn.io, i2c.seadn.io, raw.seadn.io, etc.
         hostname: '**.seadn.io', 
       },
       {
@@ -13,13 +15,9 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'lh3.googleusercontent.com', // Often used for older collections/avatars
+        hostname: 'lh3.googleusercontent.com', 
       },
     ],
-  },
-  // This section fixes the "Module not found" errors during build
-  experimental: {
-    serverExternalPackages: ["pino", "thread-stream", "pino-worker"],
   },
 };
 
