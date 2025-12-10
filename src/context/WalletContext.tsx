@@ -1,4 +1,4 @@
-// src/contexts/WalletContext.tsx
+// src/context/WalletContext.tsx
 "use client";
 
 import {
@@ -7,13 +7,14 @@ import {
   type ReactNode,
 } from "react";
 import { 
+  ThirdwebProvider, // <--- 1. Import Provider
   useActiveAccount, 
-  useActiveWallet, // <--- TAMBAHKAN INI
+  useActiveWallet,
   useConnect, 
   useDisconnect 
 } from "thirdweb/react";
 import { createWallet, WalletId } from "thirdweb/wallets";
-import { client } from "@/lib/client";
+import { client } from "@/lib/client"; // Ensure this path is correct
 
 type WalletContextValue = {
   isConnected: boolean;
@@ -24,9 +25,10 @@ type WalletContextValue = {
 
 const WalletContext = createContext<WalletContextValue | undefined>(undefined);
 
-export function WalletProvider({ children }: { children: ReactNode }) {
+// 2. We separate the logic into an inner component to safely use hooks
+function WalletContextLogic({ children }: { children: ReactNode }) {
   const account = useActiveAccount();
-  const wallet = useActiveWallet(); // <--- Ambil instance wallet aktif
+  const wallet = useActiveWallet();
   
   const { connect: connectThirdweb } = useConnect();
   const { disconnect: disconnectThirdweb } = useDisconnect();
@@ -36,18 +38,18 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   const connect = async (walletId: WalletId) => {
     try {
-      const newWallet = createWallet(walletId); // Ganti nama variable biar tidak bentrok
+      const newWallet = createWallet(walletId);
       await connectThirdweb(async () => {
         await newWallet.connect({ client });
         return newWallet;
       });
     } catch (error) {
       console.error("Connection failed:", error);
+      throw error; // Rethrow so your UI can handle the error state
     }
   };
 
   const disconnect = () => {
-    // Gunakan objek 'wallet' dari useActiveWallet(), bukan dari account
     if (wallet) {
       disconnectThirdweb(wallet);
     }
@@ -57,6 +59,17 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     <WalletContext.Provider value={{ isConnected, address, connect, disconnect }}>
       {children}
     </WalletContext.Provider>
+  );
+}
+
+// 3. The Main Provider export now includes ThirdwebProvider
+export function WalletProvider({ children }: { children: ReactNode }) {
+  return (
+    <ThirdwebProvider>
+      <WalletContextLogic>
+        {children}
+      </WalletContextLogic>
+    </ThirdwebProvider>
   );
 }
 
