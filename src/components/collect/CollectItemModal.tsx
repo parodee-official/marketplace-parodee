@@ -6,9 +6,12 @@ import { useWallet } from "@/context/WalletContext";
 
 type CollectItemModalProps = {
   open: boolean;
-  item: any | null;
   onClose: () => void;
-  floorPriceEth?: number | null; // boleh diabaikan dulu, karena kita skip price
+  item: any | null;
+  detail?: any;
+  history?: any[];
+  isLoading?: boolean;
+  floorPriceEth?: number | null;
 };
 
 type DetailTab = "attributes" | "activity" | "bids";
@@ -28,44 +31,85 @@ const WALLET_OPTIONS = [
   "Another Wallet",
 ];
 
+// Helper untuk menyingkat address (misal: 0x3256)
+const shortenAddress = (addr: string) => {
+  if (!addr) return "-";
+  if (addr.length < 8) return addr;
+  return addr.substring(0, 6);
+};
+
+
 export default function CollectItemModal({
   open,
-  item,
   onClose,
-  floorPriceEth,
+  item,
+  detail,
+  history,
+  isLoading = false,
 }: CollectItemModalProps) {
   const { isConnected, connect } = useWallet();
   const [activeTab, setActiveTab] = useState<DetailTab>("attributes");
-  
 
+  // Reset tab saat item berubah
   useEffect(() => {
     if (item) setActiveTab("attributes");
   }, [item]);
 
+  // Lock scroll body saat modal terbuka
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => { document.body.style.overflow = "auto"; };
+  }, [open]);
+
   if (!open || !item) return null;
 
-  const displayName = item.name || `#${item.identifier}`;
-  const imageUrl = item.image_url || item.display_image_url;
+  const displayItem = detail || item;
+  const displayName = displayItem.name || `#${displayItem.identifier}`;
+  const imageUrl = displayItem.image_url || displayItem.display_image_url;
+  const traits = displayItem.traits || displayItem.attributes || [];
 
-  // someday: item.priceEth / currentListing.price
-  const hasItemPrice = typeof item.priceEth === "number";
-  const effectivePrice = hasItemPrice
-    ? item.priceEth
-    : typeof floorPriceEth === "number"
-    ? floorPriceEth
-    : null;
-
-  const priceLabel = effectivePrice ? `${effectivePrice} ETH` : "—";
+  // Logic Dummy Price (Ambil dari data asli jika ada, kalau tidak pakai placeholder)
+  // Di real app, Anda ambil dari item.listings[0].price
+  const displayPrice = "0.25 ETH";
 
   const handleConnectClick = async () => {
     await connect();
-    setActiveTab("activity");
   };
 
-  const traits = Array.isArray(item.traits) ? item.traits : [];
+  const handleNewBid = () => {
+    if (!isConnected) {
+        connect();
+    } else {
+        alert("Bid functionality coming soon! (API Integration needed)");
+        setActiveTab("bids");
+    }
+  };
+
+  // Logic Warna Badge Activity sesuai Gambar Referensi 2
+  const getBadgeStyle = (eventType: string) => {
+    const type = eventType.toLowerCase();
+    if (type === 'sale') return 'bg-[#4bd16f] text-black border-black'; // Green
+    if (type === 'mint') return 'bg-[#ff6b81] text-black border-black'; // Pink/Red
+    if (type === 'bid' || type === 'offer_entered') return 'bg-[#4b91f1] text-black border-black'; // Blue
+    if (type === 'cancel' || type === 'cancelled') return 'bg-[#e5e7eb] text-black border-black'; // Grey
+    return 'bg-gray-200 text-gray-600 border-gray-400'; // Default
+  };
+
+  const getBadgeLabel = (eventType: string) => {
+    const type = eventType.toLowerCase();
+    if (type === 'offer_entered') return 'BID';
+    if (type === 'cancelled') return 'CANCEL BID';
+    return type.toUpperCase();
+  };
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-3 sm:px-4">
+      {/* CARD MODAL */}
       <div
         className="
           flex w-full max-w-2xl flex-col
@@ -74,8 +118,9 @@ export default function CollectItemModal({
           p-4 sm:p-6 shadow-cartoon
         "
       >
-        {/* HEADER */}
+        {/* HEADER TOP */}
         <div className="mb-6 flex flex-none gap-4 sm:gap-6">
+          {/* Avatar (image, bukan lagi background) */}
           <div
             className="
               flex h-28 w-28 items-center justify-center
@@ -94,15 +139,17 @@ export default function CollectItemModal({
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-black/10">
                 <span className="px-1 text-[10px] font-semibold text-white drop-shadow-[1px_1px_0_rgba(0,0,0,0.6)] sm:text-xs">
-                  {displayName}
+                  {displayItem.collection || "Collection Name"}
                 </span>
               </div>
             )}
           </div>
 
+          {/* Title + description + price + actions */}
           <div className="flex-1">
             <div className="mb-2 flex items-start justify-between gap-4">
               <h2 className="text-xl font-black leading-tight sm:text-2xl">
+                {/* {displayItem.collection || "Collection Name"} */}
                 {displayName}
               </h2>
               <button
@@ -115,45 +162,47 @@ export default function CollectItemModal({
             </div>
 
             <p className="mb-3 text-[10px] leading-snug text-gray-700 sm:text-[11px]">
-              {item.description ??
-                "We’re building a universe that can grow into stories, digital experiences, community moments, and anything creative we want to explore."}
+              {displayItem.description || "We’re building a universe that can grow into stories, digital experiences, community moments, and anything creative we want to explore."}
             </p>
 
             <p className="text-xl">
               <span className="font-bold text-[#636363]">Price:</span>{" "}
-              <span className="font-black">{priceLabel}</span>
+              <span className="font-black">{displayPrice}</span>
             </p>
 
+            {/* Action buttons */}
             <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:gap-3">
               <button
                 type="button"
+                onClick={handleNewBid}
                 className="
-                  flex-1 rounded-xl border-2 border-black bg-white
+                  flex-1 rounded-[20px] border-2 border-black bg-white
                   px-4 py-2 text-[10px] font-bold uppercase tracking-wide
-                  shadow-cartoonTwo
-                  hover:translate-x-1 hover:translate-y-1 hover:shadow-none
+                  shadow-cartoonTwo transition-transform
+                  hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#000]
                   sm:text-xs
                 "
               >
                 New Bid
               </button>
-              <button
+              <a
+                href={`https://opensea.io/assets/${displayItem.chain || 'ethereum'}/${displayItem.contract}/${displayItem.identifier}`}
                 type="button"
                 className="
-                  flex-1 rounded-xl border-2 border-black bg-brand-yellow
+                  flex-1 rounded-[20px] border-2 border-black bg-brand-yellow
                   px-4 py-2 text-[10px] font-bold uppercase tracking-wide
-                  shadow-cartoonTwo
-                  hover:translate-x-1 hover:translate-y-1 hover:shadow-none
+                  shadow-cartoonTwo transition-transform
+                  hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#000]
                   sm:text-xs
                 "
               >
                 Buy Now
-              </button>
+              </a>
             </div>
           </div>
         </div>
 
-        {/* BODY */}
+        {/* LOWER CARD: Tabs + Content (SCROLLABLE AREA) */}
         <div
           className="
             flex-1 overflow-y-auto rounded-[24px] border-2 border-black
@@ -162,6 +211,7 @@ export default function CollectItemModal({
             [&::-webkit-scrollbar]:hidden
           "
         >
+          {/* Tabs */}
           <div className="mb-4 flex gap-4 text-[11px] sm:text-xs">
             {DETAIL_TABS.map((tab) => {
               const isActive = activeTab === tab.id;
@@ -183,7 +233,9 @@ export default function CollectItemModal({
             })}
           </div>
 
+          {/* Content area */}
           {!isConnected ? (
+            // BELUM CONNECT WALLET → grid CONNECT WALLET
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {WALLET_OPTIONS.map((label) => (
                 <button
@@ -191,10 +243,10 @@ export default function CollectItemModal({
                   type="button"
                   onClick={handleConnectClick}
                   className="
-                    rounded-xl border-2 border-black bg-white
+                    rounded-[16px] border-2 border-black bg-white
                     px-3 py-3 text-[11px] font-semibold
-                    shadow-cartoonTwo
-                    hover:translate-x-1 hover:translate-y-1 hover:shadow-none
+                    shadow-cartoon transition-transform
+                    hover:-translate-y-0.5
                     sm:text-xs
                   "
                 >
@@ -206,51 +258,123 @@ export default function CollectItemModal({
               ))}
             </div>
           ) : (
+            // SUDAH CONNECT → konten tab beneran
             <div className="min-h-[160px] rounded-[18px] border-2 border-black bg-white px-3 py-2 sm:px-4 sm:py-3">
               {activeTab === "attributes" && (
                 <>
-                  {traits.length === 0 ? (
-                    <div className="flex h-full items-center justify-center text-[11px] text-gray-600">
-                      No attributes yet for this NFT.
-                    </div>
-                  ) : (
-                    <div className="flex flex-wrap gap-2 text-[10px] sm:text-[11px]">
-                      {traits.map((trait: any) => {
-                        const label =
-                          trait.name ?? trait.trait_type ?? "Trait";
-                        const value =
-                          trait.value ?? trait.trait_value ?? "-";
-                        const key = `${label}-${value}`;
+                {(traits?.length ?? 0) === 0 ? (
+                  <div className="flex h-full items-center justify-center p-10 text-sm font-bold text-gray-400 border-2 border-dashed border-gray-300 rounded-xl">
+                    No attributes found.
+                  </div>
+                ) : (
+                <div className="flex flex-wrap gap-2 text-[10px] sm:text-[11px]">
+                  {traits.map((trait: any, idx: number) => (
+                    <div
+                      key={idx}
+                      className="rounded-[14px] border-2 border-black bg-white px-3 py-1 shadow-cartoon"
+                    >
+                      <div className="text-[8px] uppercase text-gray-500 sm:text-[9px]">
+                        {trait.trait_type}
+                      </div>
+                      <div className="text-[10px] font-semibold sm:text-[11px]">
+                        {trait.value}
+                      </div>
 
-                        return (
-                          <div
-                            key={key}
-                            className="rounded-[14px] border-2 border-black bg-white px-3 py-1 shadow-cartoon"
-                          >
-                            <div className="text-[8px] uppercase text-gray-500 sm:text-[9px]">
-                              {label}
-                            </div>
-                            <div className="text-[10px] font-semibold sm:text-[11px]">
-                              {value}
-                            </div>
-                          </div>
-                        );
-                      })}
+                      {trait.rarity_score && (
+                        <div className="mt-3 w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                            <div
+                                className="bg-black h-full rounded-full"
+                                style={{width: `${Math.min(trait.rarity_score, 100)}%`}}
+                            />
+                        </div>
+                      )}
+
                     </div>
-                  )}
+                  ))}
+                </div>
+                 )}
                 </>
               )}
 
               {activeTab === "activity" && (
-                <div className="flex h-full items-center justify-center text-[11px] text-gray-600">
-                  No activity yet for this NFT.
+                <div className="overflow-x-auto text-[10px] sm:text-[11px]">
+                  {!history || history.length === 0 ? (
+                    <div className="flex h-full items-center justify-center p-10 text-sm font-bold text-gray-400">
+                      No recent activity.
+                    </div>
+                  ) : (
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="border-b border-black/40 text-left">
+                          <th className="py-2 pr-4">Type</th>
+                          <th className="py-2 pr-4">Seller</th>
+                          <th className="py-2 pr-4">Buyer</th>
+                          <th className="py-2 pr-4">Value</th>
+                          <th className="py-2">Time</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {history.slice(0, 15).map((event: any, idx: number) => {
+                          const fromAddr = event.from_address || event.maker || event.offerer;
+                          const toAddr = event.to_address || event.taker;
+
+                          let priceDisplay = "—";
+                          if (event.payment) {
+                            const val =
+                              parseInt(event.payment.quantity) /
+                              Math.pow(10, event.payment.decimals);
+                            priceDisplay = val < 0.0001  ? "< 0.001" : val.toFixed(4);
+                          } else if (event.price) {
+                            priceDisplay = (event.price / 1e18).toFixed(4);
+                          }
+
+                          return (
+                            <tr key={idx} className="border-b border-black/10">
+                              <td className="py-2 pr-4">
+                                <span
+                                  className="
+                                    inline-flex items-center rounded-full
+                                    border-2 border-black px-2 py-[2px]
+                                    text-[8px] font-semibold sm:text-[9px]
+                                  "
+                                >
+                                  {getBadgeLabel(event.event_type)}
+                                </span>
+                              </td>
+
+                              <td className="py-2 pr-4">{shortenAddress(fromAddr)}</td>
+                              <td className="py-2 pr-4">{shortenAddress(toAddr)}</td>
+                              <td className="py-2 pr-4">{priceDisplay}</td>
+
+                              <td className="py-2">
+                                {event.event_timestamp
+                                  ? new Date(event.event_timestamp * 1000).toLocaleDateString(
+                                      "en-US",
+                                      { month: "numeric", day: "numeric" }
+                                    )
+                                  : "-"}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               )}
 
+
+
               {activeTab === "bids" && (
-                <div className="flex h-full items-center justify-center text-[11px] text-gray-600">
-                  No bids yet. Place the first bid!
-                </div>
+                <><div className="flex h-full items-center justify-center text-[11px] text-gray-600">
+                    No bids yet. Place the first bid!
+                  </div><button
+                    onClick={handleNewBid}
+                    className="mt-2 px-6 py-2 rounded-full border-2 border-black bg-black text-white font-bold hover:bg-gray-800"
+                  >
+                      Place a Bid
+                    </button></>
               )}
             </div>
           )}

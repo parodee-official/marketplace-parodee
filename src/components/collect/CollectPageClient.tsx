@@ -13,6 +13,9 @@ import SortModal, {
   SortDirection,
   SortOptionId,
 } from "@/components/collect/SortModal";
+// Import client opensea
+import { openSeaClient } from "@/lib/opensea";
+import { getNFTDetailsAction, getNFTEventsAction } from "@/app/actions/nftActions";
 
 const ITEMS_PER_PAGE = 25;
 
@@ -25,7 +28,11 @@ export default function CollectPageClient({ initialItems }: CollectPageClientPro
   const [currentPage, setCurrentPage] = useState(1);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
-  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  // State untuk Modal & Detail Data
+  const [selectedItem, setSelectedItem] = useState<any | null>(null); // Data dasar dari Grid
+  const [detailItem, setDetailItem] = useState<any | null>(null);     // Data lengkap (Attributes, dll)
+  const [history, setHistory] = useState<any[]>([]);                  // Data history transaksi
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);      // Loading state untuk fetch detail
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
 
   const [sortMode, setSortMode] = useState<SortMode>("featured");
@@ -71,13 +78,48 @@ export default function CollectPageClient({ initialItems }: CollectPageClientPro
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const pageItems = filtered.slice(startIndex, endIndex);
 
-  const handleOpenItem = (item: any) => {
+  // LOGIKA UTAMA: Fetch Detail saat Item di-klik
+  const handleOpenItem = async (item: any) => {
     setSelectedItem(item);
     setIsItemModalOpen(true);
+
+    setDetailItem(null);
+    setHistory([]);
+    setIsLoadingDetail(true);
+
+    try {
+      const chain = item.chain || "ethereum";
+      const address = item.contract;
+      // Handle jika item.contract adalah object (kadang API v2 mengembalikan object address)
+      const contractAddress = typeof address === 'object' ? address.address : address;
+      const identifier = item.identifier;
+
+      // 2. GUNAKAN SERVER ACTION DI SINI
+      const [detailData, historyData] = await Promise.all([
+        getNFTDetailsAction(chain, contractAddress, identifier),
+        getNFTEventsAction(chain, contractAddress, identifier)
+      ]);
+
+      // 3. Update state (tambahkan pengecekan null safety)
+      if (detailData && detailData.nft) {
+        setDetailItem(detailData.nft);
+      }
+
+      if (historyData && historyData.asset_events) {
+        setHistory(historyData.asset_events);
+      }
+
+    } catch (error) {
+      console.error("Gagal mengambil detail NFT:", error);
+    } finally {
+      setIsLoadingDetail(false);
+    }
   };
 
   const handleCloseItem = () => {
     setIsItemModalOpen(false);
+    // Opsional: Reset detail saat tutup agar bersih saat dibuka lagi
+    // setSelectedItem(null);
   };
 
   const applySortOption = (opt: SortOptionId) => {
@@ -137,9 +179,13 @@ export default function CollectPageClient({ initialItems }: CollectPageClientPro
         onClose={() => setIsMobileFilterOpen(false)}
       />
 
+      {/* Update props ke Modal: Kirim data detail, history, dan status loading */}
       <CollectItemModal
         open={isItemModalOpen}
-        item={selectedItem}
+        item={selectedItem}      // Data dasar (Image, Name)
+        detail={detailItem}      // Data lengkap (Attributes) - Perlu diupdate di komponen Modal
+        history={history}        // Data events - Perlu diupdate di komponen Modal
+        isLoading={isLoadingDetail} // Status loading untuk menampilkan spinner di Modal
         onClose={handleCloseItem}
       />
 
