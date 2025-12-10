@@ -1,20 +1,22 @@
 // src/components/layout/WalletConnectModal.tsx
 "use client";
 
-import { useWallet } from "@/context/WalletContext";
+import { useWallet } from "@/context/WalletContext"; // Pastikan path benar
+import { useEffect, useState } from "react";
+import { WalletId } from "thirdweb/wallets";
 
 type WalletConnectModalProps = {
   open: boolean;
   onClose: () => void;
 };
 
-const WALLET_OPTIONS = [
-  "MetaMask",
-  "WalletConnect",
-  "Coinbase Wallet",
-  "Phantom",
-  "OKX Wallet",
-  "Another Wallet",
+const WALLET_OPTIONS: { label: string; id: WalletId }[] = [
+  { label: "MetaMask", id: "io.metamask" },
+  { label: "WalletConnect", id: "walletConnect" },
+  { label: "Coinbase Wallet", id: "com.coinbase.wallet" },
+  { label: "Phantom", id: "app.phantom" },
+  { label: "OKX Wallet", id: "com.okex.wallet" },
+  { label: "Others", id: "walletConnect" },
 ];
 
 export default function WalletConnectModal({
@@ -22,16 +24,41 @@ export default function WalletConnectModal({
   onClose,
 }: WalletConnectModalProps) {
   const { isConnected, connect } = useWallet();
+  
+  // State untuk mengunci tombol agar tidak double-click
+  const [isConnectingLocal, setIsConnectingLocal] = useState(false);
+
+  // Auto close saat berhasil connect
+  useEffect(() => {
+    if (isConnected && open) {
+      onClose();
+    }
+  }, [isConnected, open, onClose]);
 
   if (!open) return null;
 
-  const handleSelectWallet = async () => {
-    await connect(); // mock connect – nanti bisa bawa info wallet terpilih kalau perlu
-    onClose();
+  const handleSelectWallet = async (walletId: WalletId) => {
+    // 1. Cegah klik jika sedang loading
+    if (isConnectingLocal) return;
+    
+    setIsConnectingLocal(true);
+    
+    try {
+      await connect(walletId);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      // 2. Buka kunci setelah selesai/gagal (delay sedikit utk UX)
+      setTimeout(() => {
+        setIsConnectingLocal(false);
+      }, 500);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+    // 3. PENTING: Gunakan z-[60] agar muncul DI ATAS CollectItemModal (yang biasanya z-50)
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
+      
       <div className="w-full max-w-md rounded-[24px] border-2 border-black bg-white p-5 shadow-cartoon">
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">
@@ -41,37 +68,55 @@ export default function WalletConnectModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-black bg-white text-xs font-bold shadow-cartoon"
+            // Pastikan tombol close tidak disabled
+            className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-black bg-white text-xs font-bold shadow-cartoon hover:bg-red-100"
           >
             ✕
           </button>
         </div>
 
         <p className="mb-3 text-xs text-gray-600">
-          Choose one of the available Web3 wallets to connect. (Mock only)
+          Choose one of the available Web3 wallets to connect.
         </p>
 
         {/* Wallet list */}
         <div className="grid grid-cols-2 gap-3">
-          {WALLET_OPTIONS.map((label) => (
+          {WALLET_OPTIONS.map((option) => (
             <button
-              key={label}
+              // 4. FIX: Gunakan label sebagai key agar unik
+              key={option.label} 
+              
               type="button"
-              onClick={handleSelectWallet}
-              className="rounded-xl border-2 border-black bg-white px-3 py-3 text-left text-xs font-semibold shadow-cartoonTwo  hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+              disabled={isConnectingLocal} // Disable tombol saat loading
+              onClick={() => handleSelectWallet(option.id)}
+              className={`
+                rounded-xl border-2 border-black bg-white px-3 py-3 text-left text-xs font-semibold shadow-cartoonTwo transition-all 
+                ${isConnectingLocal 
+                    ? "opacity-50 cursor-not-allowed" 
+                    : "hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none"
+                }
+              `}
             >
-              <div className="mb-1 h-6 w-6 rounded-full border-2 border-black bg-gray-100" />
-              <div>{label}</div>
+              <div className="mb-1 h-6 w-6 rounded-full border-2 border-black bg-gray-100 flex items-center justify-center overflow-hidden">
+                 {/* Placeholder Icon */}
+                 <div className="text-[8px] font-bold text-gray-400">IMG</div>
+              </div>
+              
+              <div>
+                {/* Feedback visual teks */}
+                {isConnectingLocal ? "Opening..." : option.label}
+              </div>
+
               <div className="mt-1 text-[10px] font-normal text-gray-500">
-                Placeholder provider
+                {option.id === "walletConnect" ? "Scan QR" : "Injected"}
               </div>
             </button>
           ))}
         </div>
 
         {isConnected && (
-          <p className="mt-3 text-[11px] text-green-600">
-            Wallet already connected (mock).
+          <p className="mt-3 text-[11px] text-green-600 font-bold text-center">
+            ✓ Wallet Connected Successfully
           </p>
         )}
       </div>

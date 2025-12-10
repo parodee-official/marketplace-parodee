@@ -1,5 +1,8 @@
+// src/app/layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
+// 1. Import wrapper baru (bukan ThirdwebProvider langsung)
+import ThirdwebWrapper from "@/components/ThirdwebWrapper"; 
 import MainLayout from "@/components/layout/MainLayout";
 
 export const metadata: Metadata = {
@@ -15,7 +18,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <MainLayout>{children}</MainLayout>
+        {/* 2. Gunakan Wrapper di sini */}
+        <ThirdwebWrapper>
+          <MainLayout>
+            {children}
+          </MainLayout>
+        </ThirdwebWrapper>
       </body>
     </html>
   );

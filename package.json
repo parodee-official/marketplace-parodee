@@ -9,9 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "next": "16.0.7",
-    "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "next": "^16.0.7",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "thirdweb": "^5.115.4"
   },
   "devDependencies": {
     "@types/node": "^20",
