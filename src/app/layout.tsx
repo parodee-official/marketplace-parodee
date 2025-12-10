@@ -2,8 +2,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 // 1. Import wrapper baru (bukan ThirdwebProvider langsung)
-import ThirdwebWrapper from "@/components/ThirdwebWrapper"; 
+import ThirdwebWrapper from "@/components/ThirdwebWrapper";
 import MainLayout from "@/components/layout/MainLayout";
+
 
 export const metadata: Metadata = {
   title: "Marketplace – Collect & Merch",
