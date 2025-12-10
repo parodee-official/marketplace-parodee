@@ -17,6 +17,10 @@ const nextConfig = {
       },
     ],
   },
+  // This section fixes the "Module not found" errors during build
+  experimental: {
+    serverExternalPackages: ["pino", "thread-stream", "pino-worker"],
+  },
 };
 
 module.exports = nextConfig;
