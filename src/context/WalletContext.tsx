@@ -5,19 +5,32 @@ import {
   createContext,
   useContext,
   type ReactNode,
+  useState,
+  useEffect
 } from "react";
 import { 
-  ThirdwebProvider, // <--- 1. Import Provider
+  ThirdwebProvider, 
   useActiveAccount, 
   useActiveWallet,
   useConnect, 
-  useDisconnect 
+  useDisconnect,
+  useAutoConnect 
 } from "thirdweb/react";
 import { createWallet, WalletId } from "thirdweb/wallets";
-import { client } from "@/lib/client"; // Ensure this path is correct
+import { client } from "@/lib/client"; 
+
+// Daftar wallet (Harus sama persis dengan opsi di Modal Anda)
+const wallets = [
+  createWallet("io.metamask"),
+  createWallet("walletConnect"),
+  createWallet("com.coinbase.wallet"),
+  createWallet("app.phantom"),
+  createWallet("com.okex.wallet"),
+];
 
 type WalletContextValue = {
   isConnected: boolean;
+  isConnecting: boolean; // Tambahan state loading
   address: string | null;
   connect: (walletId: WalletId) => Promise<void>;
   disconnect: () => void;
@@ -25,13 +38,36 @@ type WalletContextValue = {
 
 const WalletContext = createContext<WalletContextValue | undefined>(undefined);
 
-// 2. We separate the logic into an inner component to safely use hooks
 function WalletContextLogic({ children }: { children: ReactNode }) {
   const account = useActiveAccount();
   const wallet = useActiveWallet();
-  
   const { connect: connectThirdweb } = useConnect();
   const { disconnect: disconnectThirdweb } = useDisconnect();
+  
+  // State untuk menangani loading awal AutoConnect
+  const [isAutoConnecting, setIsAutoConnecting] = useState(true);
+
+  const { isLoading: autoConnectLoading } = useAutoConnect({
+    client,
+    wallets,
+    onConnect: (w) => {
+      console.log("✅ Auto Connect Success:", w.id);
+      setIsAutoConnecting(false);
+    },
+    timeout: 15000, // Tunggu maks 15 detik
+  });
+
+  // Effect untuk mematikan loading jika AutoConnect selesai (baik sukses maupun gagal)
+  useEffect(() => {
+    // Jika useAutoConnect sudah tidak loading, matikan state loading lokal kita
+    if (!autoConnectLoading) {
+        // Beri jeda sedikit agar state account sempat terupdate
+        const timer = setTimeout(() => {
+            setIsAutoConnecting(false);
+        }, 500);
+        return () => clearTimeout(timer);
+    }
+  }, [autoConnectLoading]);
 
   const isConnected = !!account;
   const address = account?.address || null;
@@ -45,7 +81,7 @@ function WalletContextLogic({ children }: { children: ReactNode }) {
       });
     } catch (error) {
       console.error("Connection failed:", error);
-      throw error; // Rethrow so your UI can handle the error state
+      throw error; 
     }
   };
 
@@ -56,13 +92,18 @@ function WalletContextLogic({ children }: { children: ReactNode }) {
   };
 
   return (
-    <WalletContext.Provider value={{ isConnected, address, connect, disconnect }}>
+    <WalletContext.Provider value={{ 
+        isConnected, 
+        address, 
+        connect, 
+        disconnect,
+        isConnecting: isAutoConnecting 
+    }}>
       {children}
     </WalletContext.Provider>
   );
 }
 
-// 3. The Main Provider export now includes ThirdwebProvider
 export function WalletProvider({ children }: { children: ReactNode }) {
   return (
     <ThirdwebProvider>

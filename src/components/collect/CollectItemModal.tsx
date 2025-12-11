@@ -25,11 +25,19 @@ const DETAIL_TABS: { id: DetailTab; label: string }[] = [
 ];
 
 const WALLET_OPTIONS: { label: string; id: WalletId }[] = [
+  // MetaMask biasanya punya Extension, jadi aman pakai ID spesifik
   { label: "MetaMask", id: "io.metamask" },
+  
+  // WalletConnect (Generic) -> INI PALING STABIL UNTUK QR
   { label: "WalletConnect", id: "walletConnect" },
-  { label: "Coinbase Wallet", id: "com.coinbase.wallet" },
-  { label: "Phantom", id: "app.phantom" },
-  { label: "OKX Wallet", id: "com.okex.wallet" },
+
+  // --- PERBAIKAN DI SINI ---
+  // Ubah ID OKX & Coinbase menjadi 'walletConnect' jika target utamanya adalah Scan QR.
+  // Ini akan memaksa sistem menyimpan session data.
+  { label: "Coinbase Wallet", id: "walletConnect" }, 
+  { label: "Phantom", id: "app.phantom" }, // Phantom biasanya deteksi extension dgn baik
+  { label: "OKX Wallet", id: "walletConnect" }, // <--- GANTI INI DARI 'com.okex.wallet' KE 'walletConnect'
+  
   { label: "Others", id: "walletConnect" },
 ];
 
@@ -50,7 +58,8 @@ export default function CollectItemModal({
   history,
   isLoading = false,
 }: CollectItemModalProps) {
-  const { isConnected, connect } = useWallet();
+  const { isConnected, connect, isConnecting } = useWallet();
+  
   const [activeTab, setActiveTab] = useState<DetailTab>("attributes");
   const [isConnectingLocal, setIsConnectingLocal] = useState(false);
 
@@ -359,10 +368,16 @@ export default function CollectItemModal({
                 </div>
               )}
             {/* gw benerin bagian logic ini biar cuman tab bids yang harus login sisanya engga */}
-            {activeTab === "bids" && (
+           {activeTab === "bids" && (
               <>
-                {!isConnected ? (
-                  // Jika tab Bids & BELUM Connect -> Tampilkan Opsi Wallet
+                {/* 1. Jika sedang Auto-Connect (Refresh halaman) -> Tampilkan Loading */}
+                {isConnecting ? (
+                    <div className="flex flex-col h-full items-center justify-center min-h-[150px]">
+                        <div className="h-6 w-6 animate-spin rounded-full border-2 border-black border-t-transparent mb-2"></div>
+                        <p className="text-[10px] font-bold text-gray-500">Checking wallet session...</p>
+                    </div>
+                ) : !isConnected ? (
+                  // 2. Jika Selesai Loading & Belum Connect -> Tampilkan Opsi Wallet
                   <div className="flex flex-col h-full justify-center">
                     <p className="mb-4 text-center text-[10px] font-bold text-gray-500 sm:text-xs">
                       Connect wallet to view or place bids
@@ -371,44 +386,25 @@ export default function CollectItemModal({
                       {WALLET_OPTIONS.map((option) => (
                         <button
                           key={option.label}
-                          type="button"
                           disabled={isConnectingLocal}
                           onClick={() => handleSelectWallet(option.id)}
-                          className={`
-                            rounded-xl border-2 border-black bg-white px-3 py-3 text-left text-xs font-semibold shadow-cartoonTwo transition-all
-                            ${
-                              isConnectingLocal
-                                ? "opacity-50 cursor-not-allowed"
-                                : "hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none"
-                            }
-                          `}
+                          className={`rounded-xl border-2 border-black bg-white px-3 py-3 text-left text-xs font-semibold shadow-cartoonTwo transition-all ${isConnectingLocal ? "opacity-50" : "hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none"}`}
                         >
                           <div className="flex items-center gap-2">
-                            <div className="h-6 w-6 rounded-full border-2 border-black bg-gray-100 flex items-center justify-center overflow-hidden">
-                              <div className="text-[8px] font-bold text-gray-400">
-                                IMG
-                              </div>
-                            </div>
-                            <div>
-                              {isConnectingLocal ? "Opening..." : option.label}
-                            </div>
+                            <div className="h-6 w-6 rounded-full border-2 border-black bg-gray-100 flex items-center justify-center text-[8px] font-bold text-gray-400">IMG</div>
+                            <div>{isConnectingLocal ? "..." : option.label}</div>
                           </div>
                         </button>
                       ))}
                     </div>
                   </div>
                 ) : (
-                  // Jika tab Bids & SUDAH Connect
+                  // 3. Jika Sudah Connect -> Tampilkan Konten Bids
                   <div className="flex flex-col h-full items-center justify-center">
                     <div className="text-[11px] text-gray-600 mb-3">
                       No bids yet. Place the first bid!
                     </div>
-                    <a
-                      href={`https://opensea.io/assets/${
-                        displayItem.chain || "ethereum"
-                      }/${displayItem.contract}/${displayItem.identifier}`}
-                      className="px-6 py-2 rounded-full border-2 border-black bg-black text-white text-xs font-bold hover:bg-gray-800"
-                    >
+                    <a href={`https://opensea.io/assets/${displayItem.chain || "ethereum"}/${displayItem.contract}/${displayItem.identifier}`} className="px-6 py-2 rounded-full border-2 border-black bg-black text-white text-xs font-bold hover:bg-gray-800">
                       Place a Bid
                     </a>
                   </div>
