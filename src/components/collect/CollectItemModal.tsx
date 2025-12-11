@@ -252,43 +252,8 @@ export default function CollectItemModal({
           </div>
 
           {/* Content area */}
-          {!isConnected ? (
-            // BELUM CONNECT WALLET → grid CONNECT WALLET
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {WALLET_OPTIONS.map((option) => (
-                <button
-                  // 4. FIX: Gunakan label sebagai key agar unik
-                  key={option.label}
-
-                  type="button"
-                  disabled={isConnectingLocal} // Disable tombol saat loading
-                  onClick={() => handleSelectWallet(option.id)}
-                  className={`
-                    rounded-xl border-2 border-black bg-white px-3 py-3 text-left text-xs font-semibold shadow-cartoonTwo transition-all
-                    ${isConnectingLocal
-                        ? "opacity-50 cursor-not-allowed"
-                        : "hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none"
-                    }
-                  `}
-                >
-                  <div className="mb-1 h-6 w-6 rounded-full border-2 border-black bg-gray-100 flex items-center justify-center overflow-hidden">
-                    {/* Placeholder Icon */}
-                    <div className="text-[8px] font-bold text-gray-400">IMG</div>
-                  </div>
-
-                  <div>
-                    {/* Feedback visual teks */}
-                    {isConnectingLocal ? "Opening..." : option.label}
-                  </div>
-
-                  <div className="mt-1 text-[10px] font-normal text-gray-500">
-                    {option.id === "walletConnect" ? "Scan QR" : "Injected"}
-                  </div>
-                </button>
-              ))}
-            </div>
-          ) : (
-            // SUDAH CONNECT → konten tab beneran
+         
+            {/* SUDAH CONNECT → konten tab beneran*/}
             <div className="min-h-[160px] rounded-[18px] border-2 border-black bg-white px-3 py-2 sm:px-4 sm:py-3">
               {activeTab === "attributes" && (
                 <>
@@ -393,18 +358,65 @@ export default function CollectItemModal({
                   )}
                 </div>
               )}
-
-              {activeTab === "bids" && (
-                <><div className="flex h-full items-center justify-center text-[11px] text-gray-600">
-                    No bids yet. Place the first bid!
-                  </div><a href={`https://opensea.io/assets/${displayItem.chain || 'ethereum'}/${displayItem.contract}/${displayItem.identifier}`}
-                    className="mt-2 px-6 py-2 rounded-full border-2 border-black bg-black text-white font-bold hover:bg-gray-800"
-                  >
+            {/* gw benerin bagian logic ini biar cuman tab bids yang harus login sisanya engga */}
+            {activeTab === "bids" && (
+              <>
+                {!isConnected ? (
+                  // Jika tab Bids & BELUM Connect -> Tampilkan Opsi Wallet
+                  <div className="flex flex-col h-full justify-center">
+                    <p className="mb-4 text-center text-[10px] font-bold text-gray-500 sm:text-xs">
+                      Connect wallet to view or place bids
+                    </p>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {WALLET_OPTIONS.map((option) => (
+                        <button
+                          key={option.label}
+                          type="button"
+                          disabled={isConnectingLocal}
+                          onClick={() => handleSelectWallet(option.id)}
+                          className={`
+                            rounded-xl border-2 border-black bg-white px-3 py-3 text-left text-xs font-semibold shadow-cartoonTwo transition-all
+                            ${
+                              isConnectingLocal
+                                ? "opacity-50 cursor-not-allowed"
+                                : "hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none"
+                            }
+                          `}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="h-6 w-6 rounded-full border-2 border-black bg-gray-100 flex items-center justify-center overflow-hidden">
+                              <div className="text-[8px] font-bold text-gray-400">
+                                IMG
+                              </div>
+                            </div>
+                            <div>
+                              {isConnectingLocal ? "Opening..." : option.label}
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  // Jika tab Bids & SUDAH Connect
+                  <div className="flex flex-col h-full items-center justify-center">
+                    <div className="text-[11px] text-gray-600 mb-3">
+                      No bids yet. Place the first bid!
+                    </div>
+                    <a
+                      href={`https://opensea.io/assets/${
+                        displayItem.chain || "ethereum"
+                      }/${displayItem.contract}/${displayItem.identifier}`}
+                      className="px-6 py-2 rounded-full border-2 border-black bg-black text-white text-xs font-bold hover:bg-gray-800"
+                    >
                       Place a Bid
-                    </a></>
-              )}
-            </div>
-          )}
+                    </a>
+                  </div>
+                )}
+              </>
+            )}
+            
+          </div>
         </div>
       </div>
     </div>
