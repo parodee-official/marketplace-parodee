@@ -32,3 +32,15 @@ export async function getBestListingAction(chain: string, address: string, ident
     return null;
   }
 }
+
+
+// Tambahkan function ini di file nftActions.ts
+export async function getCollectionTraitsAction(slug: string) {
+  try {
+    const data = await openSeaClient.getCollectionTraits(slug);
+    return data;
+  } catch (error) {
+    console.error("Error fetching collection traits:", error);
+    return null;
+  }
+}

@@ -34,6 +34,12 @@ export const openSeaClient = {
     return fetchOpenSea(`/collection/${slug}/nfts?limit=${limit}`);
   },
 
+  getCollectionTraits: async (slug: string) => {
+    return fetchOpenSea(`/traits/${slug}`, {
+      next: { revalidate: 3600 }
+    });
+  },
+
   getCollectionStats: async (slug: string) => {
     return fetchOpenSea(`/collections/${slug}/stats`);
   },

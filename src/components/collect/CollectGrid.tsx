@@ -10,7 +10,7 @@ type CollectGridProps = {
 export default function CollectGrid({ items, onItemClick }: CollectGridProps) {
   if (!items?.length) return null;
 
-  console.log("NFT SAMPLE", items[0]);
+  // console.log("NFT SAMPLE", items[0]);
   return (
     <div className="grid grid-cols-4 gap-4 md:grid-cols-5 sm:gap-5 md:gap-6">
       {items.map((nft: any) => {

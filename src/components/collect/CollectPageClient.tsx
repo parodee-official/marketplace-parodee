@@ -1,192 +1,284 @@
 // src/components/collect/CollectPageClient.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import CollectToolbar, { SortMode } from "@/components/collect/CollectToolbar";
 import CollectGrid from "@/components/collect/CollectGrid";
 import PaginationDots from "@/components/collect/PaginationDots";
 import CollectItemModal from "@/components/collect/CollectItemModal";
-import FilterSidebar, {
-  MobileFilterSidebar,
-} from "@/components/collect/FilterSidebar";
-import SortModal, {
-  SortDirection,
-  SortOptionId,
-} from "@/components/collect/SortModal";
-// Import client opensea
-import { openSeaClient } from "@/lib/opensea";
+import FilterSidebar, { MobileFilterSidebar } from "@/components/collect/FilterSidebar";
+import SortModal, { SortDirection, SortOptionId } from "@/components/collect/SortModal";
 import { getNFTDetailsAction, getNFTEventsAction } from "@/app/actions/nftActions";
 
 const ITEMS_PER_PAGE = 25;
 
+// --- CONFIG: HANYA TAMPILKAN KATEGORI INI ---
+const ALLOWED_TRAIT_TYPES = ["Background", "Body", "Type", "Face", "Outfit"];
+
 type CollectPageClientProps = {
-  initialItems: any[]; // array NFT dari OpenSea
+  initialItems: any;
 };
 
 export default function CollectPageClient({ initialItems }: CollectPageClientProps) {
+
+  // 1. NORMALISASI AWAL
+  const baseItems = useMemo(() => {
+    if (!initialItems) return [];
+    if (Array.isArray(initialItems)) return initialItems;
+    if (initialItems.nfts && Array.isArray(initialItems.nfts)) return initialItems.nfts;
+    return [];
+  }, [initialItems]);
+
+  // State untuk menyimpan item yang sudah dilengkapi traits
+  const [items, setItems] = useState<any[]>(baseItems);
+
+  // --- 2. AUTO-ENRICH (Ambil Traits di Background) ---
+  useEffect(() => {
+    // Jika tidak ada items atau item pertama sudah punya traits, stop.
+    if (items.length === 0 || (items[0]?.traits && items[0].traits.length > 0)) {
+        return;
+    }
+
+    const enrichData = async () => {
+      // Copy array state saat ini
+      const updatedItems = [...baseItems];
+      const limit = Math.min(updatedItems.length, 30); // Ambil 30 item pertama dulu
+
+      for (let i = 0; i < limit; i++) {
+        const item = updatedItems[i];
+        if (item.traits && item.traits.length > 0) continue;
+
+        try {
+          const chain = item.chain || "ethereum";
+          const address = typeof item.contract === 'object' ? item.contract.address : item.contract;
+          const identifier = item.identifier;
+
+          // Ambil detail lengkap
+          const detail = await getNFTDetailsAction(chain, address, identifier);
+
+          if (detail && detail.nft && detail.nft.traits) {
+            updatedItems[i] = { ...item, traits: detail.nft.traits };
+
+            // Update UI setiap 5 item agar terasa progresif
+            if (i % 5 === 0) {
+                setItems([...updatedItems]);
+            }
+          }
+        } catch (err) {
+          console.warn(`Skip item ${i}`, err);
+        }
+      }
+      // Final update
+      setItems([...updatedItems]);
+    };
+
+    enrichData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [baseItems]);
+
+
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string[]>>({});
 
-  // State untuk Modal & Detail Data
-  const [selectedItem, setSelectedItem] = useState<any | null>(null); // Data dasar dari Grid
-  const [detailItem, setDetailItem] = useState<any | null>(null);     // Data lengkap (Attributes, dll)
-  const [history, setHistory] = useState<any[]>([]);                  // Data history transaksi
-  const [isLoadingDetail, setIsLoadingDetail] = useState(false);      // Loading state untuk fetch detail
+  // State Modal
+  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  const [detailItem, setDetailItem] = useState<any | null>(null);
+  const [history, setHistory] = useState<any[]>([]);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
 
+  // State Sort
   const [sortMode, setSortMode] = useState<SortMode>("featured");
   const [isSortModalOpen, setIsSortModalOpen] = useState(false);
   const [sortOption, setSortOption] = useState<SortOptionId>("best-offer");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
-  // FILTER + SORT (client-side)
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+  // --- 3. FILTERING LOGIC (PERBAIKAN UTAMA) ---
+  // Kita extract traits HANYA dari kategori yang diizinkan (Allowed Traits)
+  const availableTraits = useMemo(() => {
+    const traitsMap: Record<string, Set<string>> = {};
 
-    const base = !q
-      ? initialItems
-      : initialItems.filter((item: any) => {
-          const name = (item.name ?? "").toLowerCase();
-          const id = String(item.identifier ?? "").toLowerCase();
-          const collection = String(item.collection ?? "").toLowerCase();
-          return name.includes(q) || id.includes(q) || collection.includes(q);
+    items.forEach((item: any) => {
+      const rawTraits = item.traits || item.metadata?.attributes || [];
+
+      if (Array.isArray(rawTraits)) {
+        rawTraits.forEach((t: any) => {
+          const traitType = t.trait_type || t.key;
+          const traitValue = t.value;
+
+          if (traitType && traitValue) {
+            // Capitalize first letter
+            const normalizedType = String(traitType).charAt(0).toUpperCase() + String(traitType).slice(1);
+
+            // --- FILTER: HANYA MASUKKAN JIKA ADA DI WHITELIST ---
+            if (ALLOWED_TRAIT_TYPES.includes(normalizedType)) {
+                if (!traitsMap[normalizedType]) {
+                  traitsMap[normalizedType] = new Set();
+                }
+                traitsMap[normalizedType].add(String(traitValue));
+            }
+          }
         });
+      }
+    });
 
-    if (sortMode === "featured") return base;
+    const result: Record<string, string[]> = {};
+    Object.keys(traitsMap).sort().forEach((key) => {
+      result[key] = Array.from(traitsMap[key]).sort();
+    });
 
-    const sorted = [...base];
+    return result;
+  }, [items]);
 
-    if (sortMode === "newest") {
-      sorted.sort((a, b) =>
-        String(a.name ?? "").localeCompare(String(b.name ?? ""))
-      );
-    } else if (sortMode === "rarity") {
-      sorted.sort((a, b) =>
-        String(b.name ?? "").localeCompare(String(a.name ?? ""))
-      );
+
+  // --- 4. APPLY FILTER KE GRID ---
+  const filtered = useMemo(() => {
+    // PENTING: Gunakan 'items' (state yang sudah di-enrich), BUKAN 'initialItems'
+    let result = [...items];
+
+    // A. Search
+    const q = search.trim().toLowerCase();
+    if (q) {
+      result = result.filter((item: any) => {
+        const name = (item.name ?? "").toLowerCase();
+        const id = String(item.identifier ?? "").toLowerCase();
+        return name.includes(q) || id.includes(q);
+      });
     }
 
-    if (sortDirection === "desc") sorted.reverse();
+    // B. Attributes Filter
+    if (Object.keys(selectedAttributes).length > 0) {
+      result = result.filter((item: any) => {
+        // Ambil traits dari item ini
+        const itemTraits = item.traits || item.metadata?.attributes || [];
 
-    return sorted;
-  }, [initialItems, search, sortMode, sortDirection]);
+        // Cek setiap filter yang aktif (Logic AND antar kategori)
+        return Object.entries(selectedAttributes).every(([filterCategory, filterValues]) => {
+          if (filterValues.length === 0) return true;
 
+          // Item harus punya salah satu value dari filterValues di kategori ini
+          return itemTraits.some((t: any) => {
+            const tType = t.trait_type || t.key;
+            // Normalisasi nama kategori biar cocok (background -> Background)
+            const normType = String(tType).charAt(0).toUpperCase() + String(tType).slice(1);
+
+            // Cek apakah Tipe cocok DAN Value cocok
+            return normType === filterCategory && filterValues.includes(String(t.value));
+          });
+        });
+      });
+    }
+
+    // C. Sort
+    if (sortMode !== "featured") {
+      if (sortMode === "newest") {
+        result.sort((a, b) => String(a.name ?? "").localeCompare(String(b.name ?? "")));
+      } else if (sortMode === "rarity") {
+        result.sort((a, b) => String(b.name ?? "").localeCompare(String(a.name ?? "")));
+      }
+    }
+    if (sortDirection === "desc") result.reverse();
+
+    return result;
+  }, [items, search, sortMode, sortDirection, selectedAttributes]);
+
+  // Pagination
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const safePage = Math.min(currentPage, totalPages);
   const startIndex = (safePage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const pageItems = filtered.slice(startIndex, endIndex);
+  const pageItems = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  // LOGIKA UTAMA: Fetch Detail saat Item di-klik
+  // Handlers
+  const handleToggleAttribute = (traitType: string, value: string) => {
+    setSelectedAttributes((prev) => {
+      const current = prev[traitType] || [];
+      const newValues = current.includes(value)
+        ? current.filter((v) => v !== value)
+        : [...current, value];
+
+      const next = { ...prev };
+      if (newValues.length === 0) delete next[traitType];
+      else next[traitType] = newValues;
+
+      return next;
+    });
+    setCurrentPage(1);
+  };
+
   const handleOpenItem = async (item: any) => {
     setSelectedItem(item);
     setIsItemModalOpen(true);
-
     setDetailItem(null);
     setHistory([]);
     setIsLoadingDetail(true);
 
     try {
       const chain = item.chain || "ethereum";
-      const address = item.contract;
-      // Handle jika item.contract adalah object (kadang API v2 mengembalikan object address)
-      const contractAddress = typeof address === 'object' ? address.address : address;
+      const address = typeof item.contract === 'object' ? item.contract.address : item.contract;
       const identifier = item.identifier;
 
-      // 2. GUNAKAN SERVER ACTION DI SINI
       const [detailData, historyData] = await Promise.all([
-        getNFTDetailsAction(chain, contractAddress, identifier),
-        getNFTEventsAction(chain, contractAddress, identifier)
+        getNFTDetailsAction(chain, address, identifier),
+        getNFTEventsAction(chain, address, identifier)
       ]);
 
-      // 3. Update state (tambahkan pengecekan null safety)
-      if (detailData && detailData.nft) {
-        setDetailItem(detailData.nft);
-      }
-
-      if (historyData && historyData.asset_events) {
-        setHistory(historyData.asset_events);
-      }
-
+      if (detailData && detailData.nft) setDetailItem(detailData.nft);
+      if (historyData && historyData.asset_events) setHistory(historyData.asset_events);
     } catch (error) {
-      console.error("Gagal mengambil detail NFT:", error);
+      console.error("Gagal detail:", error);
     } finally {
       setIsLoadingDetail(false);
     }
   };
 
-  const handleCloseItem = () => {
-    setIsItemModalOpen(false);
-    // Opsional: Reset detail saat tutup agar bersih saat dibuka lagi
-    // setSelectedItem(null);
-  };
-
   const applySortOption = (opt: SortOptionId) => {
     setSortOption(opt);
-
-    switch (opt) {
-      case "best-offer":
-        setSortMode("featured");
-        break;
-      case "last-sale":
-      case "time-listed":
-        setSortMode("newest");
-        break;
-      case "rarity":
-        setSortMode("rarity");
-        break;
-      default:
-        setSortMode("featured");
-    }
-
+    setSortMode(opt === "best-offer" ? "featured" : opt === "rarity" ? "rarity" : "newest");
     setCurrentPage(1);
   };
 
   return (
     <section className="mt-4 md:mt-6">
       <div className="flex gap-6">
-        <FilterSidebar />
+        <FilterSidebar
+          availableTraits={availableTraits} // <-- Nama prop harus sama dengan di FilterSidebar
+          selectedAttributes={selectedAttributes}
+          onToggleAttribute={handleToggleAttribute}
+        />
 
         <div className="flex-1">
           <CollectToolbar
             search={search}
-            onSearchChange={(v) => {
-              setSearch(v);
-              setCurrentPage(1);
-            }}
+            onSearchChange={(v) => { setSearch(v); setCurrentPage(1); }}
             onOpenFilter={() => setIsMobileFilterOpen(true)}
             sortMode={sortMode}
-            onSortModeChange={(mode) => {
-              setSortMode(mode);
-              setCurrentPage(1);
-            }}
+            onSortModeChange={(mode) => { setSortMode(mode); setCurrentPage(1); }}
             onOpenSortMenu={() => setIsSortModalOpen(true)}
           />
 
           <CollectGrid items={pageItems} onItemClick={handleOpenItem} />
 
-          <PaginationDots
-            currentPage={safePage}
-            totalPages={totalPages}
-            onChange={setCurrentPage}
-          />
+          <PaginationDots currentPage={safePage} totalPages={totalPages} onChange={setCurrentPage} />
         </div>
       </div>
 
       <MobileFilterSidebar
         open={isMobileFilterOpen}
         onClose={() => setIsMobileFilterOpen(false)}
+        availableTraits={availableTraits}
+        selectedAttributes={selectedAttributes}
+        onToggleAttribute={handleToggleAttribute}
       />
 
-      {/* Update props ke Modal: Kirim data detail, history, dan status loading */}
       <CollectItemModal
         open={isItemModalOpen}
-        item={selectedItem}      // Data dasar (Image, Name)
-        detail={detailItem}      // Data lengkap (Attributes) - Perlu diupdate di komponen Modal
-        history={history}        // Data events - Perlu diupdate di komponen Modal
-        isLoading={isLoadingDetail} // Status loading untuk menampilkan spinner di Modal
-        onClose={handleCloseItem}
+        item={selectedItem}
+        detail={detailItem}
+        history={history}
+        isLoading={isLoadingDetail}
+        onClose={() => setIsItemModalOpen(false)}
       />
 
       <SortModal
@@ -195,10 +287,7 @@ export default function CollectPageClient({ initialItems }: CollectPageClientPro
         option={sortOption}
         direction={sortDirection}
         onChangeOption={applySortOption}
-        onChangeDirection={(dir) => {
-          setSortDirection(dir);
-          setCurrentPage(1);
-        }}
+        onChangeDirection={(dir) => { setSortDirection(dir); setCurrentPage(1); }}
       />
     </section>
   );
