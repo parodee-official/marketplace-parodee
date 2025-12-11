@@ -11,11 +11,18 @@ type WalletConnectModalProps = {
 };
 
 const WALLET_OPTIONS: { label: string; id: WalletId }[] = [
+  // Metamask & Phantom biasanya punya Extension di browser, jadi aman pakai ID spesifik
   { label: "MetaMask", id: "io.metamask" },
-  { label: "WalletConnect", id: "walletConnect" },
-  { label: "Coinbase Wallet", id: "com.coinbase.wallet" },
   { label: "Phantom", id: "app.phantom" },
-  { label: "OKX Wallet", id: "com.okex.wallet" },
+
+  // --- UBAH ID DI BAWAH INI MENJADI 'walletConnect' ---
+  // Ini triknya: Walaupun labelnya "OKX" atau "Coinbase", 
+  // kita paksa sistem menggunakan jalur standar WalletConnect (QR Code)
+  // agar Session Data tersimpan di LocalStorage.
+  { label: "WalletConnect", id: "walletConnect" },
+  { label: "Coinbase Wallet", id: "walletConnect" }, // Ubah id jadi walletConnect
+  { label: "OKX Wallet", id: "walletConnect" },      // Ubah id jadi walletConnect
+  
   { label: "Others", id: "walletConnect" },
 ];
 
