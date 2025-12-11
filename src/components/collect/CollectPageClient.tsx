@@ -10,10 +10,10 @@ import FilterSidebar, { MobileFilterSidebar } from "@/components/collect/FilterS
 import SortModal, { SortDirection, SortOptionId } from "@/components/collect/SortModal";
 import { getNFTEventsAction } from "@/app/actions/nftActions"; 
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 120;
 
 // [PENTING] Masukkan Contract Address Collection Anda di sini
-const COLLECTION_CONTRACT = "0x495f947276749ce646f68ac8c248420045cb7b5e"; 
+const COLLECTION_CONTRACT = "0x9e1dadf6eb875cf927c85a430887f2945039f923"; 
 const COLLECTION_CHAIN = "ethereum";
 
 const ALLOWED_TRAIT_TYPES = ["Background", "Body", "Type", "Face", "Outfit"];
