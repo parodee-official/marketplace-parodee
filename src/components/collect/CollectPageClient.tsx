@@ -98,39 +98,40 @@ export default function CollectPageClient({ initialItems }: CollectPageClientPro
   // --- 3. FILTERING LOGIC (PERBAIKAN UTAMA) ---
   // Kita extract traits HANYA dari kategori yang diizinkan (Allowed Traits)
   const availableTraits = useMemo(() => {
-    const traitsMap: Record<string, Set<string>> = {};
+  const traitsMap: Record<string, Set<string>> = {};
 
-    items.forEach((item: any) => {
-      const rawTraits = item.traits || item.metadata?.attributes || [];
+  // Gunakan for...of loop yang lebih cepat dari forEach untuk array besar
+  for (const item of items) {
+    const rawTraits = item.traits || item.metadata?.attributes || [];
+    if (!Array.isArray(rawTraits)) continue;
 
-      if (Array.isArray(rawTraits)) {
-        rawTraits.forEach((t: any) => {
-          const traitType = t.trait_type || t.key;
-          const traitValue = t.value;
+    for (const t of rawTraits) {
+      const traitType = t.trait_type || t.key;
+      if (!traitType) continue; // Skip jika kosong
 
-          if (traitType && traitValue) {
-            // Capitalize first letter
-            const normalizedType = String(traitType).charAt(0).toUpperCase() + String(traitType).slice(1);
+      // Normalisasi
+      const normalizedType = String(traitType).charAt(0).toUpperCase() + String(traitType).slice(1);
 
-            // --- FILTER: HANYA MASUKKAN JIKA ADA DI WHITELIST ---
-            if (ALLOWED_TRAIT_TYPES.includes(normalizedType)) {
-                if (!traitsMap[normalizedType]) {
-                  traitsMap[normalizedType] = new Set();
-                }
-                traitsMap[normalizedType].add(String(traitValue));
-            }
-          }
-        });
+      // Cek Whitelist SEBELUM memproses logic lain (Short-circuit)
+      if (ALLOWED_TRAIT_TYPES.includes(normalizedType)) {
+        if (!traitsMap[normalizedType]) {
+          traitsMap[normalizedType] = new Set();
+        }
+        // Pastikan value string
+        traitsMap[normalizedType].add(String(t.value));
       }
-    });
+    }
+  }
 
-    const result: Record<string, string[]> = {};
-    Object.keys(traitsMap).sort().forEach((key) => {
-      result[key] = Array.from(traitsMap[key]).sort();
-    });
+  // Convert Set ke Array
+  const result: Record<string, string[]> = {};
+  for (const key in traitsMap) { // Gunakan for...in
+     // Spread operator [...] pada Set kadang lambat di engine lama, Array.from lebih aman
+     result[key] = Array.from(traitsMap[key]).sort();
+  }
 
-    return result;
-  }, [items]);
+  return result;
+}, [items]); // Dependency array aman
 
 
   // --- 4. APPLY FILTER KE GRID ---

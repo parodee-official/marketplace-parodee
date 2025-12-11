@@ -10,6 +10,7 @@ export default async function CollectPage() {
       "parodee-pixel-chaos",
       100
     );
+
     nfts = data?.nfts ?? [];
   } catch (error) {
     console.error("[CollectPage] gagal fetch dari OpenSea:", error);

@@ -17,7 +17,7 @@ async function fetchOpenSea(endpoint: string, options: RequestInit = {}) {
       "x-api-key": API_KEY || "",
       ...(options.headers || {}),
     },
-    next: { revalidate: 60, ...(options as any).next },
+    next: { revalidate: 3600, ...(options as any).next },
   };
 
   const response = await fetch(`${BASE_URL}${endpoint}`, mergedOptions);
