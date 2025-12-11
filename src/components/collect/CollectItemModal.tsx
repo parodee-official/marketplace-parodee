@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useWallet } from "@/context/WalletContext";
 import { WalletId } from "thirdweb/wallets";
 
-
+const COLLECTION_CONTRACT = "0x9e1dadf6eb875cf927c85a430887f2945039f923"; // Ganti dengan punya Anda
 type CollectItemModalProps = {
   open: boolean;
   onClose: () => void;
@@ -84,6 +84,7 @@ export default function CollectItemModal({
   const displayName = displayItem.name || `#${displayItem.identifier}`;
   const imageUrl = displayItem.image_url || displayItem.display_image_url;
   const traits = displayItem.traits || displayItem.attributes || [];
+  const finalContractAddress = displayItem.contract || COLLECTION_CONTRACT;
 
   // Logic Dummy Price (Ambil dari data asli jika ada, kalau tidak pakai placeholder)
   // Di real app, Anda ambil dari item.listings[0].price
@@ -212,11 +213,13 @@ export default function CollectItemModal({
               >
                 New Bid
               </button>
-              <a
-                href={`https://opensea.io/assets/${displayItem.chain || 'ethereum'}/${displayItem.contract}/${displayItem.identifier}`}
-                type="button"
+<a
+                href={`https://opensea.io/assets/${displayItem.chain || 'ethereum'}/${finalContractAddress}/${displayItem.identifier}`}
+                target="_blank" // Tambahkan ini agar membuka tab baru
+                rel="noopener noreferrer" // Security best practice
                 className="
-                  flex-1 rounded-[20px] border-2 border-black bg-brand-yellow
+                  flex-1 flex items-center justify-center
+                  rounded-[20px] border-2 border-black bg-brand-yellow
                   px-4 py-2 text-[10px] font-bold uppercase tracking-wide
                   shadow-cartoonTwo transition-transform
                   hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#000]
