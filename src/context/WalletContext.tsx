@@ -106,11 +106,9 @@ function WalletContextLogic({ children }: { children: ReactNode }) {
 
 export function WalletProvider({ children }: { children: ReactNode }) {
   return (
-    <ThirdwebProvider>
       <WalletContextLogic>
         {children}
       </WalletContextLogic>
-    </ThirdwebProvider>
   );
 }
 

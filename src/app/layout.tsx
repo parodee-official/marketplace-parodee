@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 // 1. Import wrapper baru (bukan ThirdwebProvider langsung)
 import ThirdwebWrapper from "@/components/ThirdwebWrapper";
+import { WalletProvider } from "@/context/WalletContext"
 import MainLayout from "@/components/layout/MainLayout";
 
 
@@ -21,9 +22,11 @@ export default function RootLayout({
       <body>
         {/*wrapper cok testing yak*/}
         <ThirdwebWrapper>
+          <WalletProvider>
           <MainLayout>
             {children}
           </MainLayout>
+          </WalletProvider>
         </ThirdwebWrapper>
       </body>
     </html>
