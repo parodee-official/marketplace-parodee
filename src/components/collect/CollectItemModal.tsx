@@ -24,22 +24,44 @@ const DETAIL_TABS: { id: DetailTab; label: string }[] = [
   { id: "bids", label: "Bids" },
 ];
 
-const WALLET_OPTIONS: { label: string; id: WalletId }[] = [
-  // MetaMask biasanya punya Extension, jadi aman pakai ID spesifik
-  { label: "MetaMask", id: "io.metamask" },
+type WalletOption = {
+  label: string;
+  id: WalletId;
+  icon: string; // path under /public/icon
+  hint?: string;
+};
 
-  // WalletConnect (Generic) -> INI PALING STABIL UNTUK QR
-  { label: "WalletConnect", id: "walletConnect" },
+const WALLET_OPTIONS: WalletOption[] = [
+  { label: "MetaMask", id: "io.metamask", icon: "/icon/metamask.png", hint: "Injected" },
+  { label: "Phantom", id: "app.phantom", icon: "/icon/phantom.jpg", hint: "Injected" },
 
-  // --- PERBAIKAN DI SINI ---
-  // Ubah ID OKX & Coinbase menjadi 'walletConnect' jika target utamanya adalah Scan QR.
-  // Ini akan memaksa sistem menyimpan session data.
-  { label: "Coinbase Wallet", id: "walletConnect" },
-  { label: "Phantom", id: "app.phantom" }, // Phantom biasanya deteksi extension dgn baik
-  { label: "OKX Wallet", id: "walletConnect" }, // <--- GANTI INI DARI 'com.okex.wallet' KE 'walletConnect'
+  // force WalletConnect flow for these labels (use same id but different icons)
+  { label: "WalletConnect", id: "walletConnect", icon: "/icon/walletconnect.png", hint: "Scan QR" },
+  { label: "Coinbase Wallet", id: "walletConnect", icon: "/icon/coinbase.svg", hint: "WalletConnect" },
+  { label: "OKX Wallet", id: "walletConnect", icon: "/icon/okx.svg", hint: "WalletConnect" },
 
-  { label: "Others", id: "walletConnect" },
+  // fallback / others
+  { label: "Others", id: "walletConnect", icon: "/icon/wallet-generic.svg", hint: "WalletConnect" },
 ];
+
+
+
+// const WALLET_OPTIONS: { label: string; id: WalletId }[] = [
+//   // MetaMask biasanya punya Extension, jadi aman pakai ID spesifik
+//   { label: "MetaMask", id: "io.metamask" },
+
+//   // WalletConnect (Generic) -> INI PALING STABIL UNTUK QR
+//   { label: "WalletConnect", id: "walletConnect" },
+
+//   // --- PERBAIKAN DI SINI ---
+//   // Ubah ID OKX & Coinbase menjadi 'walletConnect' jika target utamanya adalah Scan QR.
+//   // Ini akan memaksa sistem menyimpan session data.
+//   { label: "Coinbase Wallet", id: "walletConnect" },
+//   { label: "Phantom", id: "app.phantom" }, // Phantom biasanya deteksi extension dgn baik
+//   { label: "OKX Wallet", id: "walletConnect" }, // <--- GANTI INI DARI 'com.okex.wallet' KE 'walletConnect'
+
+//   { label: "Others", id: "walletConnect" },
+// ];
 
 
 // Helper untuk menyingkat address (misal: 0x3256)
@@ -406,16 +428,49 @@ export default function CollectItemModal({
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       {WALLET_OPTIONS.map((option) => (
                         <button
-                          key={option.label}
-                          disabled={isConnectingLocal}
-                          onClick={() => handleSelectWallet(option.id)}
-                          className={`rounded-xl border-2 border-black bg-white px-3 py-3 text-left text-xs font-semibold shadow-cartoonTwo transition-all ${isConnectingLocal ? "opacity-50" : "hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none"}`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <div className="h-6 w-6 rounded-full border-2 border-black bg-gray-100 flex items-center justify-center text-[8px] font-bold text-gray-400">IMG</div>
-                            <div>{isConnectingLocal ? "..." : option.label}</div>
-                          </div>
-                        </button>
+  key={option.label}
+  disabled={isConnectingLocal}
+  onClick={() => handleSelectWallet(option.id)}
+  className={`
+    rounded-xl border-2 border-black bg-white px-3 py-3
+    text-left text-xs font-semibold shadow-cartoonTwo transition-all
+    ${isConnectingLocal
+      ? "opacity-50 cursor-not-allowed"
+      : "hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none"
+    }
+  `}
+>
+  <div className="flex items-center gap-2">
+
+    {/* Icon wrapper */}
+    <div className="
+      h-6 w-6 flex-none
+      rounded-full border-2 border-black
+      bg-gray-100
+      flex items-center justify-center
+      overflow-hidden
+    ">
+      <img
+        src={option.icon}
+        alt={`${option.label} logo`}
+        className="h-4 w-4 object-contain"
+        onError={(e) => {
+          // Fallback text if the icon file is missing
+          (e.currentTarget as HTMLImageElement).style.display = "none";
+          const parent = e.currentTarget.parentElement;
+          if (parent) parent.innerHTML = `<div class='text-[8px] font-bold text-gray-400'>IMG</div>`;
+        }}
+      />
+    </div>
+
+    {/* Label text */}
+    <div className="truncate">
+      {isConnectingLocal ? "..." : option.label}
+    </div>
+
+  </div>
+</button>
+
                       ))}
                     </div>
                   </div>

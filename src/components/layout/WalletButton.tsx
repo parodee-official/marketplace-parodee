@@ -25,7 +25,7 @@ export default function WalletButton({ label, onClick }: WalletButtonProps) {
   // Teks tombol berubah saat loading
   let finalLabel = label;
   if (isConnecting) {
-    finalLabel = "LOADING..."; 
+    finalLabel = "LOADING...";
   } else if (isConnected) {
     finalLabel = "CONNECTED";
   }
@@ -35,7 +35,7 @@ export default function WalletButton({ label, onClick }: WalletButtonProps) {
       type="button"
       onClick={handleClick}
       className={`
-        rounded-lg border-[2.5px] border-black px-5 py-1.5 text-xs font-black uppercase tracking-wide shadow-cartoonTwo active:translate-y-1 active:translate-x-1
+        rounded-lg border-[2.5px] border-black px-5 py-2 text-xs font-black uppercase tracking-wide shadow-cartoonTwo active:translate-y-1 active:translate-x-1
         ${isConnecting ? "bg-gray-300 cursor-wait" : "bg-brand-yellow"}
       `}
     >

@@ -28,7 +28,7 @@ export default function CollectToolbar({
   };
 
   return (
-    <div className="mb-10 flex flex-wrap items-center gap-2 sm:gap-3">
+    <div className="mb-10 flex  items-center gap-2 sm:gap-3">
 
       {/* Filter icon – mobile only */}
       <button

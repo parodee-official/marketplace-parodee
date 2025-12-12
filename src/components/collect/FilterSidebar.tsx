@@ -105,7 +105,7 @@ function SidebarContent({
   useEffect(() => {}, []);
 
   return (
-    <div className="w-full flex flex-col gap-4">
+    <div className="w-full flex flex-col gap-6">
       {/* Show unlisted (same visual as reference) */}
       <button
         type="button"
@@ -117,7 +117,7 @@ function SidebarContent({
 
       <div className="mx-1 h-[2px] bg-gray-200" />
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-8">
         {traitKeys.map((key) => {
           const isActive = activeTraitType === key;
           const hasActiveFilter = (selectedAttributes[key] || []).length > 0;
@@ -196,7 +196,7 @@ export function MobileFilterSidebar({
           absolute left-0 top-0 h-full w-[60%] max-w-sm
           bg-white border-[4px] border-black border-l-0 rounded-r-[32px]
 
-          p-8
+          p-6
           shadow-cartoonTwo
           overflow-y-auto scrollbar-hide
         "

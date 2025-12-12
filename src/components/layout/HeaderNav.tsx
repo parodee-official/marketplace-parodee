@@ -123,7 +123,7 @@ export default function HeaderNav() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="flex h-11 w-11 items-center justify-center rounded-lg border-[3px] border-black bg-white  shadow-cartoonTwo md:hidden active:translate-x-1 active:translate-y-1 active:shadow-none"
+              className="flex h-10 w-10 items-center justify-center rounded-lg border-[3px] border-black bg-white  shadow-cartoonTwo md:hidden active:translate-x-1 active:translate-y-1 active:shadow-none"
               aria-label="Open menu"
             >
               <div className="flex flex-col gap-[3px]">
