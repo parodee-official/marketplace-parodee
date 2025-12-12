@@ -142,8 +142,8 @@ export default function CollectItemModal({
       <div
         className="
           flex w-full max-w-2xl flex-col
-          min-h-[240px] sm:min-h-[300px] md:min-h-[360px]
-          max-h-[80vh]  md:max-h-[90vh]
+          min-h-[70vh] sm:min-h-[300px] md:min-h-[350px]
+          max-h-[70vh] md:max-h-[500px]
           rounded-[24px] border-2 border-black bg-white
           p-4 sm:p-6 shadow-cartoon
         "
