@@ -1,7 +1,7 @@
 // src/components/collect/CollectItemModal.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useWallet } from "@/context/WalletContext";
 import { WalletId } from "thirdweb/wallets";
 
@@ -100,6 +100,55 @@ export default function CollectItemModal({
     return () => { document.body.style.overflow = "auto"; };
   }, [open]);
 
+
+
+  // --- LOGIC HARGA DINAMIS (REVISI: FORCE ETH) ---
+  const displayPrice = useMemo(() => {
+    // 1. Cek history
+    if (!history || history.length === 0) return "Not Listed";
+
+    // 2. Cari event terbaru (Sale/Listing/Transfer dengan value)
+    const latestPriceEvent = history.find((e: any) => {
+      const hasPayment = e.payment && e.payment.quantity;
+      const hasPrice = e.price && e.price !== "0";
+      const hasStartPrice = e.start_price && e.start_price !== "0";
+      return hasPayment || hasPrice || hasStartPrice;
+    });
+
+    if (!latestPriceEvent) return "Not Listed";
+
+    let finalPrice = 0;
+    let symbol = "ETH";
+
+    try {
+      if (latestPriceEvent.payment) {
+        // Event Sale/Offer biasanya punya symbol di payment
+        const qty = parseFloat(latestPriceEvent.payment.quantity);
+        const decimals = latestPriceEvent.payment.decimals || 18;
+        symbol = latestPriceEvent.payment.symbol || "ETH";
+        finalPrice = qty / Math.pow(10, decimals);
+      }
+      else if (latestPriceEvent.price) {
+        finalPrice = parseFloat(latestPriceEvent.price) / 1e18;
+      }
+      else if (latestPriceEvent.start_price) {
+        finalPrice = parseFloat(latestPriceEvent.start_price) / 1e18;
+      }
+    } catch (err) {
+      console.error("Error parsing price", err);
+      return "—";
+    }
+
+    if (finalPrice === 0) return "—";
+
+    // --- LOGIC GANTI WETH JADI ETH ---
+    if (symbol === "WETH") {
+        symbol = "ETH";
+    }
+
+    return `${finalPrice.toLocaleString("en-US", { maximumFractionDigits: 4 })} ${symbol}`;
+  }, [history]);
+
   if (!open || !item) return null;
 
   const displayItem = detail || item;
@@ -110,7 +159,8 @@ export default function CollectItemModal({
 
   // Logic Dummy Price (Ambil dari data asli jika ada, kalau tidak pakai placeholder)
   // Di real app, Anda ambil dari item.listings[0].price
-  const displayPrice = "0.25 ETH";
+  // const displayPrice = "0.25 ETH";
+
 
   const handleSelectWallet = async (walletId: WalletId) => {
     // 1. Cegah klik jika sedang loading
@@ -141,22 +191,54 @@ export default function CollectItemModal({
 
 
   // Logic Warna Badge Activity sesuai Gambar Referensi 2
+  // --- HELPER WARNA BACKGROUND (Updated) ---
   const getBadgeStyle = (eventType: string) => {
-    const type = eventType.toLowerCase();
-    if (type === 'sale') return 'bg-[#4bd16f] text-black border-black'; // Green
-    if (type === 'mint') return 'bg-[#ff6b81] text-black border-black'; // Pink/Red
-    if (type === 'bid' || type === 'offer_entered') return 'bg-[#4b91f1] text-black border-black'; // Blue
-    if (type === 'cancel' || type === 'cancelled') return 'bg-[#e5e7eb] text-black border-black'; // Grey
-    return 'bg-gray-200 text-gray-600 border-gray-400'; // Default
+    const type = (eventType || "").toLowerCase();
+
+    // 1. SALE & MINT -> HIJAU NEON (Sesuai request)
+    if (type === 'sale' || type === 'mint' || type === 'item_listed') {
+        return 'bg-[#5efc8d]';
+    }
+
+    // 2. LISTING / ORDER -> MERAH SALMON
+    // Penting: OpenSea v2 sering mengirim 'order' atau 'created' untuk Listing
+    if (type === 'listing' || type === 'list' || type === 'order' || type === 'created') {
+        return 'bg-[#ff7676]';
+    }
+
+    // 3. BID / OFFER -> BIRU CYAN
+    if (type === 'bid' || type === 'offer_entered') {
+        return 'bg-[#5ce1ff]';
+    }
+
+    // 4. CANCEL -> ABU-ABU
+    if (type === 'cancel' || type === 'cancelled') {
+        return 'bg-[#d1d5db]';
+    }
+
+    // 5. TRANSFER -> UNGU (Opsional, untuk membedakan dengan default)
+    if (type === 'transfer') {
+        return 'bg-[#c084fc]';
+    }
+
+    // Default (Abu-abu muda)
+    return 'bg-gray-200';
   };
 
+  // --- HELPER LABEL TEKS (Updated) ---
   const getBadgeLabel = (eventType: string) => {
-    const type = eventType.toLowerCase();
-    if (type === 'offer_entered') return 'BID';
-    if (type === 'cancelled') return 'CANCEL BID';
-    return type.toUpperCase();
-  };
+    const type = (eventType || "").toLowerCase();
 
+    if (type === 'offer_entered') return 'BID';
+    if (type === 'cancelled' || type === 'cancel') return 'CANCEL';
+
+    // Pastikan 'order' dilabeli sebagai LIST agar user paham
+    if (type === 'listing' || type === 'list' || type === 'order' || type === 'created') return 'LIST';
+
+    if (type === 'mint') return 'MINT';
+
+    return type.toUpperCase(); // transfer -> TRANSFER, sale -> SALE
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-3 sm:px-4">
@@ -208,9 +290,10 @@ export default function CollectItemModal({
               <button
                 onClick={onClose}
                 className="
-                  flex h-9 w-9 shrink-0 items-center justify-center
-                  rounded-lg border-[3px] border-black bg-[#ff6b81]
+                  flex w-7 h-7 md:h-9 md:w-9 shrink-0 items-center justify-center
+                  rounded-lg border-[3px] border-black bg-[#FF6467]
                   text-lg font-black shadow-[2px_2px_0px_#000000]
+                  active:translate-x-1 active:translate-y-1 active:shadow-none
                 "
               >
                 ✕
@@ -220,7 +303,7 @@ export default function CollectItemModal({
             {/* ==== DESCRIPTION scrollable (exact like screenshot) ==== */}
             <div
               className="
-                text-[13px]  text-gray-700
+                text-xs md:text-[13px]  text-gray-700
                 max-h-[55px] md:max-h-[60px]
                 overflow-y-auto pr-3 mb-4
                 custom-scrollbar
@@ -231,7 +314,7 @@ export default function CollectItemModal({
             </div>
 
             {/* ==== PRICE ==== */}
-            <p className="text-lg mb-3">
+            <p className="text-xl mb-3">
               <span className="font-bold text-[#636363]">Price:</span>{" "}
               <span className="font-black text-xl">{displayPrice}</span>
             </p>
@@ -367,24 +450,42 @@ export default function CollectItemModal({
                           const toAddr = event.to_address || event.taker;
 
                           let priceDisplay = "—";
+                          let symbol = "ETH"; // Default symbol
+
                           if (event.payment) {
+                            // CASE 1: Sale/Offer (Punya data payment lengkap)
                             const val =
                               parseInt(event.payment.quantity) /
                               Math.pow(10, event.payment.decimals);
-                            priceDisplay = val < 0.0001  ? "< 0.001" : val.toFixed(4);
+                            priceDisplay = val < 0.0001 ? "< 0.001" : val.toFixed(4);
+
+                            // Ambil symbol asli, jika WETH paksa jadi ETH
+                            if (event.payment.symbol) {
+                                symbol = event.payment.symbol === "WETH" ? "ETH" : event.payment.symbol;
+                            }
                           } else if (event.price) {
+                            // CASE 2: Listing (Biasanya Wei)
                             priceDisplay = (event.price / 1e18).toFixed(4);
+                          } else if (event.start_price) {
+                             // CASE 3: Listing tipe lain
+                             priceDisplay = (event.start_price / 1e18).toFixed(4);
+                          }
+
+                          // GABUNGKAN ANGKA + SYMBOL (Misal: "0.5000 ETH")
+                          if (priceDisplay !== "—") {
+                              priceDisplay = `${priceDisplay} ${symbol}`;
                           }
 
                           return (
                             <tr key={idx} className="border-b border-black/10">
                               <td className="py-2 pr-4">
                                 <span
-                                  className="
-                                    inline-flex items-center rounded-full
-                                    border-2 border-black px-2 py-[2px]
-                                    text-[8px] font-semibold sm:text-[9px]
-                                  "
+                                  className={`
+                                    inline-flex items-center justify-center rounded-lg
+                                    border-2 border-black px-3 py-[5px]
+                                    text-[9px] font-black tracking-wide text-black
+                                    ${getBadgeStyle(event.event_type)}
+                                  `}
                                 >
                                   {getBadgeLabel(event.event_type)}
                                 </span>

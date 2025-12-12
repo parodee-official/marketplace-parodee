@@ -145,10 +145,10 @@ export default function HeaderNav() {
       />
 
         <BottomTabs />
-        <WalletConnectModal
-        open={isWalletModalOpen}
-        onClose={() => setWalletModalOpen(false)}
-      />
+          <WalletConnectModal
+          open={isWalletModalOpen}
+          onClose={() => setWalletModalOpen(false)}
+        />
     </header>
   );
 }

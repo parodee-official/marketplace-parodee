@@ -186,7 +186,7 @@ export function MobileFilterSidebar({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 md:hidden">
+    <div className="fixed min-h-screen inset-0 z-50 md:hidden">
       {/* backdrop */}
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
@@ -208,7 +208,7 @@ export function MobileFilterSidebar({
           <button
             onClick={onClose}
             aria-label="Close filters"
-            className="flex h-9 w-9 items-center justify-center rounded-full border-[3px] border-black bg-white font-bold"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border-[3px] border-black bg-[#FF6467] font-bold shadow-[2px_2px_0px_#000000] active:translate-x-1 active:translate-y-1 active:shadow-none"
           >
             ✕
           </button>
