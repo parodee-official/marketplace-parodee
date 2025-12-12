@@ -24,6 +24,9 @@ const config: Config = {
       borderRadius: {
         xl2: "1.5rem", // buat card besar
       },
+      fontFamily: {
+      sans: ['var(--font-satoshi)', 'ui-sans-serif', 'system-ui'],
+    },
     },
   },
   plugins: [],

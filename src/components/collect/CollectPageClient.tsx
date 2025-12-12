@@ -8,12 +8,12 @@ import PaginationDots from "@/components/collect/PaginationDots";
 import CollectItemModal from "@/components/collect/CollectItemModal";
 import FilterSidebar, { MobileFilterSidebar } from "@/components/collect/FilterSidebar";
 import SortModal, { SortDirection, SortOptionId } from "@/components/collect/SortModal";
-import { getNFTEventsAction } from "@/app/actions/nftActions"; 
+import { getNFTEventsAction } from "@/app/actions/nftActions";
 
-const ITEMS_PER_PAGE = 120;
+const ITEMS_PER_PAGE = 25;
 
 // [PENTING] Masukkan Contract Address Collection Anda di sini
-const COLLECTION_CONTRACT = "0x9e1dadf6eb875cf927c85a430887f2945039f923"; 
+const COLLECTION_CONTRACT = "0x9e1dadf6eb875cf927c85a430887f2945039f923";
 const COLLECTION_CHAIN = "ethereum";
 
 const ALLOWED_TRAIT_TYPES = ["Background", "Body", "Type", "Face", "Outfit"];
@@ -25,7 +25,7 @@ type CollectPageClientProps = {
 export default function CollectPageClient({ initialItems }: CollectPageClientProps) {
 
   // 1. Data langsung pakai dari props (JSON Lokal), tidak perlu state 'items' tambahan
-  const items = initialItems; 
+  const items = initialItems;
 
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -112,7 +112,7 @@ export default function CollectPageClient({ initialItems }: CollectPageClientPro
        // Featured / Default: Sort by ID Ascending
        result.sort((a, b) => parseInt(a.identifier) - parseInt(b.identifier));
     }
-    
+
     if (sortDirection === "desc") result.reverse();
 
     return result;
@@ -166,7 +166,7 @@ export default function CollectPageClient({ initialItems }: CollectPageClientPro
 
   return (
     <section className="mt-4 md:mt-6">
-      <div className="flex gap-6">
+      <div className="flex gap-8">
         <FilterSidebar
           availableTraits={availableTraits}
           selectedAttributes={selectedAttributes}

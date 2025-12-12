@@ -34,7 +34,7 @@ export default function CollectToolbar({
       <button
         type="button"
         onClick={() => onOpenFilter?.()}
-        className="flex h-10 w-10 flex-none items-center justify-center rounded-lg border-[3px] border-black bg-white shadow-cartoonTwo md:hidden active:translate-x-1 active:translate-y-1 active:shadow-none"
+        className="flex h-9 w-9 flex-none items-center justify-center rounded-lg border-[3px] border-black bg-white shadow-cartoonTwo md:hidden active:translate-x-1 active:translate-y-1 active:shadow-none"
         aria-label="Open filters"
       >
         <div className="flex flex-col gap-[3px]">
@@ -55,7 +55,7 @@ export default function CollectToolbar({
           />
           <button
             type="button"
-            className="flex h-7 w-7 flex-none items-center justify-center rounded-full border-2 border-black"
+            className="flex h-6 w-6 flex-none items-center justify-center rounded-full border-2 border-black"
           >
             <span className="block h-[2px] w-3 rotate-45 translate-x-[1px] translate-y-[1px] bg-black" />
           </button>

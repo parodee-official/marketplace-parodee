@@ -4,6 +4,26 @@
 
 /* Optional: kalau mau sedikit tweak global */
 
+/* styles/globals.css */
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Variable.ttf') format('truetype');
+  font-weight: 100 900; /* variable */
+  font-style: normal;
+  font-display: swap;
+}
+
+/* fallback generic */
+:root {
+  --font-satoshi: 'Satoshi', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue";
+}
+
+/* optional global */
+html, body {
+  font-family: var(--font-satoshi);
+}
+
+
 body {
   @apply bg-brand-blue text-black;
 }

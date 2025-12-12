@@ -44,3 +44,16 @@ export async function getCollectionTraitsAction(slug: string) {
     return null;
   }
 }
+
+export async function getNFTDetailAction(chain: string, address: string, identifier: string) {
+  try {
+    // Memanggil fungsi OpenSea Client yang sudah Anda buat
+    const data = await openSeaClient.getSingleNFT(chain, address, identifier);
+
+    // Normalisasi return value (kadang dibungkus object 'nft', kadang langsung)
+    return data.nft || data;
+  } catch (error) {
+    console.error("Gagal fetch detail NFT:", error);
+    return null;
+  }
+}

@@ -1,21 +1,14 @@
 // src/components/collect/FilterSidebar.tsx
 import { useRef, useState, useEffect } from "react";
 
-// Tipe data untuk struktur filter
+/* ----------------------- Types ----------------------- */
 export type AttributesMap = Record<string, string[]>;
 export type SelectedFilters = Record<string, string[]>;
 
 interface FilterSidebarProps {
-  /** Map dari Trait Type ke list Values (hasil ekstraksi dari NFT) */
-  // UBAH KE availableTraits (Sesuai permintaan)
   availableTraits?: AttributesMap;
-
-  /** State filter yang sedang aktif */
   selectedAttributes: SelectedFilters;
-
-  /** Fungsi untuk mengubah filter */
   onToggleAttribute: (traitType: string, value: string) => void;
-
   onShowUnlistedClick?: () => void;
 }
 
@@ -24,22 +17,23 @@ type MobileFilterDrawerProps = FilterSidebarProps & {
   onClose: () => void;
 };
 
-// --- KOMPONEN KARTU SCROLLABLE (GENERIC) ---
+/* ------------------ AttributeSelectorCard (list items) ------------------ */
 function AttributeSelectorCard({
   traitType,
   options,
   selectedValues,
   onToggle,
+  compact = false,
 }: {
   traitType: string;
   options: string[];
   selectedValues: string[];
   onToggle: (val: string) => void;
+  compact?: boolean; // smaller paddings for mobile if needed
 }) {
-  const listRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement | null>(null);
   const [scrollRatio, setScrollRatio] = useState(0);
 
-  // Handle custom scrollbar logic
   useEffect(() => {
     const el = listRef.current;
     if (!el) return;
@@ -53,50 +47,42 @@ function AttributeSelectorCard({
   }, [traitType]);
 
   return (
-    <div className="rounded-2xl border-[3px] md:border-[4px] border-black bg-white px-4 py-4 mb-5 transition-all">
-      <p className="text-center text-sm font-bold capitalize mb-4">{traitType}</p>
-
+    <div className={`px-4 ${compact ? "py-3" : "py-4"} bg-white`}>
       <div className="flex gap-3">
-        {/* Scrollable list */}
         <div
           ref={listRef}
-          className="
-            flex-1 space-y-2 text-xs
-            h-[200px] overflow-y-scroll
-            scrollbar-hide
-          "
+          className={`flex-1 space-y-3 overflow-y-auto scrollbar-hide ${compact ? "h-[180px]" : "h-[200px]"} pr-2 text-sm`}
         >
           {options.length === 0 ? (
-            <p className="text-gray-400 text-center italic">No traits found</p>
+            <p className="py-4 text-center text-xs italic text-gray-400">No traits found</p>
           ) : (
             options.map((val, idx) => {
               const isSelected = selectedValues.includes(val);
               return (
                 <div
                   key={`${val}-${idx}`}
-                  className="cursor-pointer group"
                   onClick={() => onToggle(val)}
+                  className="group cursor-pointer"
                 >
-                  <div className="flex items-center justify-between py-1">
-                    <span className={isSelected ? "font-bold text-black" : "text-gray-600"}>
+                  <div className="flex items-center justify-between pb-2">
+                    <span className={`${isSelected ? "font-bold text-black" : "font-medium text-[#000]"}`}>
                       {val}
                     </span>
-                    {isSelected && <span className="text-green-600 font-bold">✓</span>}
+                    {isSelected && <span className="text-sm font-bold text-black">✓</span>}
                   </div>
-                  <div className={`h-[2px] w-full transition-colors ${isSelected ? "bg-black" : "bg-gray-200 group-hover:bg-gray-400"}`} />
+                  <div className="h-[2px] w-full bg-[#000] group-hover:bg-black transition-colors" />
                 </div>
               );
             })
           )}
         </div>
 
-        {/* Custom scrollbar track */}
-        <div className="relative h-[200px] w-[6px] rounded-full bg-gray-200 flex-shrink-0">
+        <div className={`${compact ? "ml-2 h-[180px]" : "ml-3 h-[200px]"} w-[6px] flex-shrink-0 rounded-full bg-gray-100 relative`}>
           <div
-            className="absolute left-[1px] w-[4px] rounded-full bg-black transition-all duration-75"
+            className="absolute w-full rounded-full bg-gray-400 transition-all duration-100 ease-out"
             style={{
-              top: `${scrollRatio * (200 - 40)}px`,
               height: "40px",
+              top: `${scrollRatio * ((compact ? 180 : 200) - 40)}px`,
             }}
           />
         </div>
@@ -105,100 +91,93 @@ function AttributeSelectorCard({
   );
 }
 
-/**
- * Shared Content untuk Desktop & Mobile
- */
+/* ------------------ SidebarContent (shared desktop/mobile) ------------------ */
 function SidebarContent({
-  // BERI DEFAULT VALUE {} AGAR TIDAK ERROR "UNDEFINED"
   availableTraits = {},
   selectedAttributes,
   onToggleAttribute,
   onShowUnlistedClick,
 }: FilterSidebarProps) {
-
-  // Gunakan availableTraits di sini
-  // Tambahkan safety check || {}
   const traitKeys = Object.keys(availableTraits || {});
-
   const [activeTraitType, setActiveTraitType] = useState<string | null>(null);
 
-  // Set default active tab jika belum ada yang aktif dan data tersedia
-  useEffect(() => {
-    if (!activeTraitType && traitKeys.length > 0) {
-      setActiveTraitType(traitKeys[0]);
-    }
-  }, [traitKeys, activeTraitType]);
+  // keep closed by default
+  useEffect(() => {}, []);
 
   return (
-    <>
+    <div className="w-full flex flex-col gap-4">
+      {/* Show unlisted (same visual as reference) */}
       <button
         type="button"
         onClick={onShowUnlistedClick}
-        className="w-full rounded-2xl border-[3px] md:border-[4px] border-black bg-white px-4 py-3 text-center text-sm font-bold mb-4 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-transform"
+        className="w-full rounded-2xl border-[4px] border-black bg-white px-5 py-3 text-center text-sm font-extrabold text-black"
       >
         Show unlisted
       </button>
 
-      <div className="mb-3 h-[2px] w-full bg-gray-300" />
+      <div className="mx-1 h-[2px] bg-gray-200" />
 
-      {traitKeys.length === 0 && (
-        <div className="text-center text-xs text-gray-400 py-10">No attributes found</div>
-      )}
-
-      {/* 1. KARTU DETAIL */}
-      {activeTraitType && (
-        <AttributeSelectorCard
-          traitType={activeTraitType}
-          // Gunakan availableTraits
-          options={availableTraits[activeTraitType] || []}
-          selectedValues={selectedAttributes[activeTraitType] || []}
-          onToggle={(val) => onToggleAttribute(activeTraitType, val)}
-        />
-      )}
-
-      {/* 2. LIST BUTTON KATEGORI */}
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         {traitKeys.map((key) => {
           const isActive = activeTraitType === key;
           const hasActiveFilter = (selectedAttributes[key] || []).length > 0;
 
           return (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setActiveTraitType(key)}
-              className={`
-                w-full rounded-2xl border-[3px] md:border-[4px] border-black px-4 py-3 text-center text-sm font-bold
-                hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all
-                ${isActive ? "bg-black text-white" : "bg-white text-black"}
-                ${hasActiveFilter && !isActive ? "bg-gray-100 ring-2 ring-gray-300" : ""}
-              `}
-            >
-              {key} {hasActiveFilter && <span className="ml-1 text-xs">●</span>}
-            </button>
+            <div key={key} className="relative w-full">
+              <button
+                type="button"
+                onClick={() => setActiveTraitType((prev) => (prev === key ? null : key))}
+                className={`
+                  relative z-10 w-full px-4 py-3 text-sm font-extrabold transition-all duration-200 flex items-center justify-center
+                  border-4 border-black bg-white
+                  ${isActive ? "rounded-t-2xl border-b-0" : "rounded-2xl"}
+                  ${hasActiveFilter && !isActive ? "bg-gray-100" : ""}
+                `}
+              >
+                <span className="capitalize">{key}</span>
+                {hasActiveFilter && !isActive && (
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-black">●</span>
+                )}
+              </button>
+
+              {/* merged panel: border-t-0 so no divider; -mt to overlap the stroke and remove visible seam */}
+              <div
+                className={`
+                  overflow-hidden bg-white transition-[max-height,opacity] duration-300 ease-in-out
+                  -mt-[2.5px]
+                  ${isActive ? "max-h-[520px] border-4 border-t-0 border-black rounded-b-[20px] opacity-100 pb-3" : "max-h-0 border-0 border-transparent opacity-0"}
+                `}
+              >
+                <AttributeSelectorCard
+                  traitType={key}
+                  options={availableTraits[key] || []}
+                  selectedValues={selectedAttributes[key] || []}
+                  onToggle={(val) => onToggleAttribute(key, val)}
+                  compact={true}
+                />
+              </div>
+            </div>
           );
         })}
       </div>
-    </>
+    </div>
   );
 }
 
-/**
- * Desktop Sidebar
- */
+/* ------------------ Desktop Sidebar (kept for completeness) ------------------ */
 export default function FilterSidebar(props: FilterSidebarProps) {
   return (
-    <aside className="hidden md:w-60 md:block flex-shrink-0">
-      <div className="flex flex-col gap-2 rounded-[32px] border-[5px] border-black bg-white p-4 py-8 shadow-cartoon">
+    <aside className="hidden md:block md:w-[250px] flex-shrink-0">
+      <div
+        className="relative bg-white border-[4px] border-black rounded-[28px] p-5 shadow-cartoon"
+      >
         <SidebarContent {...props} />
       </div>
     </aside>
   );
 }
 
-/**
- * Mobile Sidebar
- */
+/* ------------------ MOBILE DRAWER (updated styling) ------------------ */
 export function MobileFilterSidebar({
   open,
   onClose,
@@ -207,24 +186,36 @@ export function MobileFilterSidebar({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-40 md:hidden">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="absolute left-0 top-0 h-full w-[65%] rounded-r-[32px] border-[3px] border-black bg-white p-4 shadow-cartoon z-50 flex flex-col">
-        {/* Header */}
-        <div className="mb-3 flex items-center justify-between">
-          <span className="text-sm font-semibold">Filters</span>
+    <div className="fixed inset-0 z-50 md:hidden">
+      {/* backdrop */}
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+
+      {/* drawer */}
+      <div
+        className="
+          absolute left-0 top-0 h-full w-[60%] max-w-sm
+          bg-white border-[4px] border-black border-l-0 rounded-r-[32px]
+
+          p-8
+          shadow-cartoonTwo
+          overflow-y-auto scrollbar-hide
+        "
+      >
+
+        {/* header area */}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-extrabold">Filters</h2>
           <button
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-lg border-[2px] border-black bg-white shadow-cartoonTwo active:translate-x-1 active:translate-y-1 active:shadow-none"
+            aria-label="Close filters"
+            className="flex h-9 w-9 items-center justify-center rounded-full border-[3px] border-black bg-white font-bold"
           >
             ✕
           </button>
         </div>
 
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto pr-1 pb-10 scrollbar-hide">
-           <SidebarContent {...props} />
-        </div>
+        {/* content */}
+        <SidebarContent {...props} />
       </div>
     </div>
   );

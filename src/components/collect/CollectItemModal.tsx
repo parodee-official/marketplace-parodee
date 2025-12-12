@@ -27,17 +27,17 @@ const DETAIL_TABS: { id: DetailTab; label: string }[] = [
 const WALLET_OPTIONS: { label: string; id: WalletId }[] = [
   // MetaMask biasanya punya Extension, jadi aman pakai ID spesifik
   { label: "MetaMask", id: "io.metamask" },
-  
+
   // WalletConnect (Generic) -> INI PALING STABIL UNTUK QR
   { label: "WalletConnect", id: "walletConnect" },
 
   // --- PERBAIKAN DI SINI ---
   // Ubah ID OKX & Coinbase menjadi 'walletConnect' jika target utamanya adalah Scan QR.
   // Ini akan memaksa sistem menyimpan session data.
-  { label: "Coinbase Wallet", id: "walletConnect" }, 
+  { label: "Coinbase Wallet", id: "walletConnect" },
   { label: "Phantom", id: "app.phantom" }, // Phantom biasanya deteksi extension dgn baik
   { label: "OKX Wallet", id: "walletConnect" }, // <--- GANTI INI DARI 'com.okex.wallet' KE 'walletConnect'
-  
+
   { label: "Others", id: "walletConnect" },
 ];
 
@@ -59,7 +59,7 @@ export default function CollectItemModal({
   isLoading = false,
 }: CollectItemModalProps) {
   const { isConnected, connect, isConnecting } = useWallet();
-  
+
   const [activeTab, setActiveTab] = useState<DetailTab>("attributes");
   const [isConnectingLocal, setIsConnectingLocal] = useState(false);
 
@@ -264,7 +264,7 @@ export default function CollectItemModal({
           </div>
 
           {/* Content area */}
-         
+
             {/* SUDAH CONNECT → konten tab beneran*/}
             <div className="min-h-[160px] rounded-[18px] border-2 border-black bg-white px-3 py-2 sm:px-4 sm:py-3">
               {activeTab === "attributes" && (
@@ -414,7 +414,7 @@ export default function CollectItemModal({
                 )}
               </>
             )}
-            
+
           </div>
         </div>
       </div>

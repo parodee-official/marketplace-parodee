@@ -66,4 +66,6 @@ export const openSeaClient = {
         { cache: 'no-store' }
      );
   },
+
 };
+

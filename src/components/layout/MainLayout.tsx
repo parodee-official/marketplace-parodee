@@ -13,7 +13,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         <HeaderNav />
 
         <main className="flex-1">
-          <div className="mx-auto max-w-6xl px-4 pb-20 pt-4 md:pb-8">
+          <div className="mx-auto max-w-6xl px-6 pb-20 pt-4 md:pb-8">
 
             {children}
           </div>
