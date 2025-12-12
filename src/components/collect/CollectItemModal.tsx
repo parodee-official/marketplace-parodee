@@ -142,20 +142,21 @@ export default function CollectItemModal({
       <div
         className="
           flex w-full max-w-2xl flex-col
-          min-h-[90vh] max-h-[90vh]
+          min-h-[240px] sm:min-h-[300px] md:min-h-[360px]
+          max-h-[80vh]  md:max-h-[90vh]
           rounded-[24px] border-2 border-black bg-white
           p-4 sm:p-6 shadow-cartoon
         "
       >
         {/* HEADER TOP */}
-        <div className="mb-6 flex flex-none gap-4 sm:gap-6">
-          {/* Avatar (image, bukan lagi background) */}
-          <div
-            className="
-              flex h-28 w-28 items-center justify-center
-              rounded-[24px] border-2 border-black shadow-cartoon
-              sm:h-32 sm:w-32
-              overflow-hidden
+        <div className="mb-6 flex flex-none items-start gap-6">
+          {/* ==== AVATAR ==== */}
+          <div className="
+              flex-none
+              h-36 w-36 sm:h-40 sm:w-40
+              rounded-[22px] border-[4px] border-black
+              overflow-hidden bg-white
+              shadow-[2px_2px_0px_#000000]
             "
           >
             {imageUrl ? (
@@ -167,75 +168,92 @@ export default function CollectItemModal({
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-black/10">
-                <span className="px-1 text-[10px] font-semibold text-white drop-shadow-[1px_1px_0_rgba(0,0,0,0.6)] sm:text-xs">
-                  {displayItem.collection || "Collection Name"}
+                <span className="px-1 text-xs font-semibold text-white drop-shadow-[1px_1px_0_rgba(0,0,0,0.6)]">
+                  {displayItem.collection || "Collection"}
                 </span>
               </div>
             )}
           </div>
 
-          {/* Title + description + price + actions */}
-          <div className="flex-1">
-            <div className="mb-2 flex items-start justify-between gap-4">
-              <h2 className="text-xl font-black leading-tight sm:text-2xl">
-                {/* {displayItem.collection || "Collection Name"} */}
+          {/* ==== RIGHT CONTENT ==== */}
+          <div className="flex-1 min-w-0">
+            {/* TITLE + CLOSE BUTTON */}
+            <div className="flex items-start justify-between gap-4 mb-1">
+              <h2 className="text-[24px] sm:text-[40px] font-black leading-tight tracking-tight">
                 {displayName}
               </h2>
+
               <button
-                type="button"
                 onClick={onClose}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-black bg-[#ff6b81] text-sm font-black shadow-cartoonTwo"
+                className="
+                  flex h-9 w-9 shrink-0 items-center justify-center
+                  rounded-lg border-[3px] border-black bg-[#ff6b81]
+                  text-lg font-black shadow-[2px_2px_0px_#000000]
+                "
               >
                 ✕
               </button>
             </div>
 
-            <p className="mb-3 text-[10px] leading-snug text-gray-700 sm:text-[11px]">
-              {displayItem.description || "We’re building a universe that can grow into stories, digital experiences, community moments, and anything creative we want to explore."}
-            </p>
+            {/* ==== DESCRIPTION scrollable (exact like screenshot) ==== */}
+            <div
+              className="
+                text-[13px]  text-gray-700
+                max-h-[55px] md:max-h-[60px]
+                overflow-y-auto pr-3 mb-4
+                custom-scrollbar
+              "
+            >
+              {displayItem.description ||
+                "We’re building a universe that can grow into stories, digital experiences, community moments, and anything creative we want to explore. make a world feel alive, expressive, and shaped together with the people who love it."}
+            </div>
 
-            <p className="text-xl">
+            {/* ==== PRICE ==== */}
+            <p className="text-lg mb-3">
               <span className="font-bold text-[#636363]">Price:</span>{" "}
-              <span className="font-black">{displayPrice}</span>
+              <span className="font-black text-xl">{displayPrice}</span>
             </p>
 
-            {/* Action buttons */}
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:gap-3">
+            {/* ==== ACTION BUTTONS (PERFECT HORIZONTAL LIKE EXAMPLE) ==== */}
+            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
               <button
-                type="button"
                 className="
-                  flex-1 rounded-[20px] border-2 border-black bg-white
-                  px-4 py-2 text-[10px] font-bold uppercase tracking-wide
-                  shadow-cartoonTwo transition-transform
-                  hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#000]
-                  sm:text-xs
+                  w-full sm:flex-1
+                  rounded-[20px] border-2 border-black bg-white
+                  px-6 py-2 text-[11px] font-bold uppercase tracking-wide
+                  shadow-[2px_2px_0px_#000000]
+                  active:translate-x-1 active:translate-y-1 active:shadow-none
                 "
               >
-                New Bid
+                NEW BID
               </button>
-<a
-                href={`https://opensea.io/assets/${displayItem.chain || 'ethereum'}/${finalContractAddress}/${displayItem.identifier}`}
-                target="_blank" // Tambahkan ini agar membuka tab baru
-                rel="noopener noreferrer" // Security best practice
+
+              <a
+                href={`https://opensea.io/assets/${displayItem.chain || "ethereum"}/${finalContractAddress}/${displayItem.identifier}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="
-                  flex-1 flex items-center justify-center
+                  w-full sm:flex-1
+                  flex items-center justify-center
                   rounded-[20px] border-2 border-black bg-brand-yellow
-                  px-4 py-2 text-[10px] font-bold uppercase tracking-wide
-                  shadow-cartoonTwo transition-transform
-                  hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#000]
-                  sm:text-xs
+                  px-6 py-2 text-[11px] font-bold uppercase tracking-wide
+                  shadow-[2px_2px_0px_#000000]
+                  active:translate-x-1 active:translate-y-1 active:shadow-none
                 "
               >
-                Buy Now
+                BUY NOW
               </a>
             </div>
+
           </div>
+
+
         </div>
 
         {/* LOWER CARD: Tabs + Content (SCROLLABLE AREA) */}
         <div
           className="
-            flex-1 overflow-y-auto rounded-[24px] border-2 border-black
+            flex-1 overflow-y-auto rounded-[24px] border-2 border-black shadow-cartoonTwo
             bg-white p-3 sm:p-4
             [scrollbar-width:none] [-ms-overflow-style:none]
             [&::-webkit-scrollbar]:hidden
@@ -266,7 +284,7 @@ export default function CollectItemModal({
           {/* Content area */}
 
             {/* SUDAH CONNECT → konten tab beneran*/}
-            <div className="min-h-[160px] rounded-[18px] border-2 border-black bg-white px-3 py-2 sm:px-4 sm:py-3">
+            <div className="min-h-[160px] rounded-[18px] border-2 shadow-cartoonTwo border-black bg-white px-3 py-2 sm:px-4 sm:py-3">
               {activeTab === "attributes" && (
                 <>
                 {(traits?.length ?? 0) === 0 ? (
@@ -278,7 +296,7 @@ export default function CollectItemModal({
                   {traits.map((trait: any, idx: number) => (
                     <div
                       key={idx}
-                      className="rounded-[14px] border-2 border-black bg-white px-3 py-1 shadow-cartoon"
+                      className="rounded-[14px] border-2 border-black bg-white px-3 py-1 shadow-cartoonTwo"
                     >
                       <div className="text-[8px] uppercase text-gray-500 sm:text-[9px]">
                         {trait.trait_type}

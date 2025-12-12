@@ -43,3 +43,22 @@ a {
 .scrollbar-hide {
   scrollbar-width: none;
 }
+
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(150,150,150,0.7) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(150,150,150,0.7);
+  border-radius: 999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
