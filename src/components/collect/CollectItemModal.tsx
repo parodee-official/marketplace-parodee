@@ -248,117 +248,128 @@ export default function CollectItemModal({
           flex w-full max-w-2xl flex-col
           min-h-[70vh] sm:min-h-[300px] md:min-h-[350px]
           max-h-[70vh] md:max-h-[500px]
-          rounded-[24px] border-2 border-black bg-white
+          rounded-[24px] border-[3px] border-black bg-white
           p-4 sm:p-6 shadow-cartoon
         "
       >
-        {/* HEADER TOP */}
-        <div className="mb-6 flex flex-none items-start gap-6">
+         {/* ===== HEADER Desktop ===== */}
+        <div className="mb-6 hidden sm:flex flex-none items-start gap-6">
           {/* ==== AVATAR ==== */}
-          <div className="
-              flex-none
-              h-36 w-36 sm:h-40 sm:w-40
-              rounded-[22px] border-[4px] border-black
-              overflow-hidden bg-white
-              shadow-[2px_2px_0px_#000000]
-            "
-          >
+          <div className="flex-none h-36 w-36 sm:h-40 sm:w-40 rounded-[22px] border-[4px] border-black overflow-hidden bg-white shadow-[2px_2px_0px_#000000]">
             {imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={imageUrl}
                 alt={displayName}
                 className="h-full w-full object-cover [image-rendering:pixelated]"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-black/10">
-                <span className="px-1 text-xs font-semibold text-white drop-shadow-[1px_1px_0_rgba(0,0,0,0.6)]">
-                  {displayItem.collection || "Collection"}
-                </span>
-              </div>
+              <div className="flex h-full w-full items-center justify-center bg-black/10" />
             )}
           </div>
 
           {/* ==== RIGHT CONTENT ==== */}
           <div className="flex-1 min-w-0">
-            {/* TITLE + CLOSE BUTTON */}
+            {/* TITLE + CLOSE */}
             <div className="flex items-start justify-between gap-4 mb-1">
-              <h2 className="text-[24px] sm:text-[40px] font-black leading-tight tracking-tight">
+              <h2 className="text-[40px] font-black leading-tight tracking-tight">
                 {displayName}
               </h2>
-
-              <button
-                onClick={onClose}
-                className="
-                  flex w-7 h-7 md:h-9 md:w-9 shrink-0 items-center justify-center
-                  rounded-lg border-[3px] border-black bg-[#FF6467]
-                  text-lg font-black shadow-[2px_2px_0px_#000000]
-                  active:translate-x-1 active:translate-y-1 active:shadow-none
-                "
-              >
+              <button onClick={onClose} className="w-9 h-9 rounded-lg border-[3px] border-black bg-[#FF6467] font-black shadow-[2px_2px_0px_#000000] active:translate-x-1 active:translate-y-1 active:shadow-none">
                 ✕
               </button>
             </div>
 
-            {/* ==== DESCRIPTION scrollable (exact like screenshot) ==== */}
-            <div
-              className="
-                text-xs md:text-[13px]  text-gray-700
+            {/* DESC */}
+            <div className="
+            text-xs md:text-[13px]  text-gray-700
                 max-h-[55px] md:max-h-[60px]
                 overflow-y-auto pr-3 mb-4
                 custom-scrollbar
-              "
-            >
-              {displayItem.description ||
-                "We’re building a universe that can grow into stories, digital experiences, community moments, and anything creative we want to explore. make a world feel alive, expressive, and shaped together with the people who love it."}
+            ">
+              {displayItem.description}
             </div>
 
-            {/* ==== PRICE ==== */}
+            {/* PRICE */}
             <p className="text-xl mb-3">
               <span className="font-bold text-[#636363]">Price:</span>{" "}
-              <span className="font-black text-xl">{displayPrice}</span>
+              <span className="font-black">{displayPrice}</span>
             </p>
 
-            {/* ==== ACTION BUTTONS (PERFECT HORIZONTAL LIKE EXAMPLE) ==== */}
-            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
-              <button
-                className="
-                  w-full sm:flex-1
-                  rounded-[20px] border-2 border-black bg-white
-                  px-6 py-2 text-[11px] font-bold uppercase tracking-wide
-                  shadow-[2px_2px_0px_#000000]
-                  active:translate-x-1 active:translate-y-1 active:shadow-none
-                "
-              >
+            {/* ACTIONS DESKTOP */}
+            <div className="flex w-full gap-3">
+              <button className="flex-1 rounded-xl border-2 border-black bg-white px-6 py-2 text-[11px] font-black uppercase shadow-[2px_2px_0px_#000000] active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5">
                 NEW BID
               </button>
-
               <a
                 href={`https://opensea.io/assets/${displayItem.chain || "ethereum"}/${finalContractAddress}/${displayItem.identifier}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="
-                  w-full sm:flex-1
-                  flex items-center justify-center
-                  rounded-[20px] border-2 border-black bg-brand-yellow
-                  px-6 py-2 text-[11px] font-bold uppercase tracking-wide
-                  shadow-[2px_2px_0px_#000000]
-                  active:translate-x-1 active:translate-y-1 active:shadow-none
-                "
-              >
+                className="flex-1 flex items-center justify-center rounded-xl border-2 border-black bg-brand-yellow px-6 py-2 text-[11px] font-black uppercase shadow-[2px_2px_0px_#000000] active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5">
                 BUY NOW
               </a>
             </div>
+          </div>
+        </div>
 
+        {/* ===== HEADER MOBILE ONLY ===== */}
+        <div className="mb-6 sm:hidden grid grid-cols-2 gap-4">
+          {/* AVATAR */}
+          <div className="flex flex-col items-center">
+            <div className="w-full aspect-square rounded-[22px] border-[4px] border-black overflow-hidden bg-white shadow-[2px_2px_0px_#000000]">
+              <img
+                src={imageUrl}
+                alt={displayName}
+                className="h-full w-full object-cover [image-rendering:pixelated]"
+              />
+            </div>
           </div>
 
+          {/* CONTENT */}
+          <div className="flex flex-col min-w-0">
+          {/* <div className="flex justify-end mb-4">
+            <button onClick={onClose} className="w-7 h-7 rounded-lg border-[3px] border-black bg-[#FF6467] font-black items-end active:translate-x-1 active:translate-y-1 active:shadow-none">
+                ✕
+            </button>
+          </div> */}
 
+            <div className="flex justify-between items-start mb-2 gap-3">
+              <h2 className="text-[22px] font-black leading-tight">
+                {displayName}
+              </h2>
+              <button onClick={onClose} className="w-7 h-7 rounded-lg border-[3px] border-black bg-[#FF6467] font-black items-end active:translate-x-1 active:translate-y-1 active:shadow-none">
+                ✕
+            </button>
+
+            </div>
+
+            <div className="text-xs text-gray-700 max-h-[55px] overflow-y-auto mb-2">
+              {displayItem.description}
+            </div>
+
+            <p className="text-md mb-2">
+              <span className="font-bold text-[#636363]">Price:</span>{" "}
+              <span className="font-black">{displayPrice}</span>
+            </p>
+          </div>
+
+          {/* ACTION ROW — SEJAJAR FIX */}
+          <button className="w-full rounded-xl border-2 border-black bg-white py-2 text-[11px] font-black uppercase shadow-[2px_2px_0px_#000000] active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5">
+            NEW BID
+          </button>
+
+          <a
+            href={`https://opensea.io/assets/${displayItem.chain || "ethereum"}/${finalContractAddress}/${displayItem.identifier}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center rounded-xl border-2 border-black bg-brand-yellow py-2 text-[11px] font-black uppercase shadow-[2px_2px_0px_#000000] active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5">
+            BUY NOW
+          </a>
         </div>
 
         {/* LOWER CARD: Tabs + Content (SCROLLABLE AREA) */}
         <div
           className="
-            flex-1 overflow-y-auto rounded-[24px] border-2 border-black shadow-cartoonTwo
+            flex-1 overflow-y-auto rounded-[24px] border-[3px] border-black shadow-cartoonTwo
             bg-white p-3 sm:p-4
             [scrollbar-width:none] [-ms-overflow-style:none]
             [&::-webkit-scrollbar]:hidden
@@ -389,7 +400,7 @@ export default function CollectItemModal({
           {/* Content area */}
 
             {/* SUDAH CONNECT → konten tab beneran*/}
-            <div className="min-h-[160px] rounded-[18px] border-2 shadow-cartoonTwo border-black bg-white px-3 py-2 sm:px-4 sm:py-3">
+          <div className="min-h-[160px] rounded-[18px] border-[3px] shadow-cartoonTwo border-black bg-white px-3 py-2 sm:px-4 sm:py-3">
               {activeTab === "attributes" && (
                 <>
                 {(traits?.length ?? 0) === 0 ? (
@@ -401,7 +412,7 @@ export default function CollectItemModal({
                   {traits.map((trait: any, idx: number) => (
                     <div
                       key={idx}
-                      className="rounded-[14px] border-2 border-black bg-white px-3 py-1 shadow-cartoonTwo"
+                      className="rounded-xl border-2 border-black bg-white px-3 py-1 shadow-cartoonTwo active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5"
                     >
                       <div className="text-[8px] uppercase text-gray-500 sm:text-[9px]">
                         {trait.trait_type}
@@ -511,83 +522,83 @@ export default function CollectItemModal({
                   )}
                 </div>
               )}
-            {/* gw benerin bagian logic ini biar cuman tab bids yang harus login sisanya engga */}
-           {activeTab === "bids" && (
-              <>
-                {/* 1. Jika sedang Auto-Connect (Refresh halaman) -> Tampilkan Loading */}
-                {isConnecting ? (
-                    <div className="flex flex-col h-full items-center justify-center min-h-[150px]">
-                        <div className="h-6 w-6 animate-spin rounded-full border-2 border-black border-t-transparent mb-2"></div>
-                        <p className="text-[10px] font-bold text-gray-500">Checking wallet session...</p>
-                    </div>
-                ) : !isConnected ? (
-                  // 2. Jika Selesai Loading & Belum Connect -> Tampilkan Opsi Wallet
-                  <div className="flex flex-col h-full justify-center">
-                    <p className="mb-4 text-center text-[10px] font-bold text-gray-500 sm:text-xs">
-                      Connect wallet to view or place bids
-                    </p>
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                      {WALLET_OPTIONS.map((option) => (
-                        <button
-  key={option.label}
-  disabled={isConnectingLocal}
-  onClick={() => handleSelectWallet(option.id)}
-  className={`
-    rounded-xl border-2 border-black bg-white px-3 py-3
-    text-left text-xs font-semibold shadow-cartoonTwo transition-all
-    ${isConnectingLocal
-      ? "opacity-50 cursor-not-allowed"
-      : "hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none"
-    }
-  `}
->
-  <div className="flex items-center gap-2">
+              {/* gw benerin bagian logic ini biar cuman tab bids yang harus login sisanya engga */}
+              {activeTab === "bids" && (
+                  <>
+                    {/* 1. Jika sedang Auto-Connect (Refresh halaman) -> Tampilkan Loading */}
+                    {isConnecting ? (
+                        <div className="flex flex-col h-full items-center justify-center min-h-[150px]">
+                            <div className="h-6 w-6 animate-spin rounded-full border-2 border-black border-t-transparent mb-2"></div>
+                            <p className="text-[10px] font-bold text-gray-500">Checking wallet session...</p>
+                        </div>
+                    ) : !isConnected ? (
+                      // 2. Jika Selesai Loading & Belum Connect -> Tampilkan Opsi Wallet
+                      <div className="flex flex-col h-full justify-center">
+                        <p className="mb-4 text-center text-[10px] font-bold text-gray-500 sm:text-xs">
+                          Connect wallet to view or place bids
+                        </p>
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          {WALLET_OPTIONS.map((option) => (
+                            <button
+                            key={option.label}
+                            disabled={isConnectingLocal}
+                            onClick={() => handleSelectWallet(option.id)}
+                            className={`
+                              rounded-xl border-2 border-black bg-white px-3 py-3
+                              text-left text-xs font-semibold shadow-cartoonTwo
+                              ${isConnectingLocal
+                                ? "opacity-50 cursor-not-allowed"
+                                : "active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5"
+                              }
+                            `}
+                          >
+      <div className="flex items-center gap-2">
 
-    {/* Icon wrapper */}
-    <div className="
-      h-6 w-6 flex-none
-      rounded-full border-2 border-black
-      bg-gray-100
-      flex items-center justify-center
-      overflow-hidden
-    ">
-      <img
-        src={option.icon}
-        alt={`${option.label} logo`}
-        className="h-4 w-4 object-contain"
-        onError={(e) => {
-          // Fallback text if the icon file is missing
-          (e.currentTarget as HTMLImageElement).style.display = "none";
-          const parent = e.currentTarget.parentElement;
-          if (parent) parent.innerHTML = `<div class='text-[8px] font-bold text-gray-400'>IMG</div>`;
-        }}
-      />
-    </div>
+        {/* Icon wrapper */}
+        <div className="
+          h-6 w-6 flex-none
+          rounded-full border-2 border-black
+          bg-gray-100
+          flex items-center justify-center
+          overflow-hidden
+        ">
+          <img
+            src={option.icon}
+            alt={`${option.label} logo`}
+            className="h-4 w-4 object-contain"
+            onError={(e) => {
+              // Fallback text if the icon file is missing
+              (e.currentTarget as HTMLImageElement).style.display = "none";
+              const parent = e.currentTarget.parentElement;
+              if (parent) parent.innerHTML = `<div class='text-[8px] font-bold text-gray-400'>IMG</div>`;
+            }}
+          />
+        </div>
 
-    {/* Label text */}
-    <div className="truncate">
-      {isConnectingLocal ? "..." : option.label}
-    </div>
+        {/* Label text */}
+        <div className="truncate">
+          {isConnectingLocal ? "..." : option.label}
+        </div>
 
-  </div>
-</button>
+      </div>
+    </button>
 
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  // 3. Jika Sudah Connect -> Tampilkan Konten Bids
-                  <div className="flex flex-col h-full items-center justify-center">
-                    <div className="text-[11px] text-gray-600 mb-3">
-                      No bids yet. Place the first bid!
-                    </div>
-                    <a href={`https://opensea.io/assets/${displayItem.chain || "ethereum"}/${displayItem.contract}/${displayItem.identifier}`} className="px-6 py-2 rounded-full border-2 border-black bg-black text-white text-xs font-bold hover:bg-gray-800">
-                      Place a Bid
-                    </a>
-                  </div>
-                )}
-              </>
-            )}
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      // 3. Jika Sudah Connect -> Tampilkan Konten Bids
+                      <div className="flex flex-col h-full items-center justify-center">
+                        <div className="text-[11px] text-gray-600 mb-3">
+                          No bids yet. Place the first bid!
+                        </div>
+                        <a href={`https://opensea.io/assets/${displayItem.chain || "ethereum"}/${displayItem.contract}/${displayItem.identifier}`} className="px-6 py-2 rounded-full border-2 border-black bg-black text-white text-xs font-bold hover:bg-gray-800">
+                          Place a Bid
+                        </a>
+                      </div>
+                    )}
+                  </>
+              )}
 
           </div>
         </div>

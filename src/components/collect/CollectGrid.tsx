@@ -27,7 +27,7 @@ export default function CollectGrid({ items, onItemClick }: CollectGridProps) {
               rounded-[16px] border-[3px] md:border-[4px] border-black bg-white
               shadow-[3px_3px_0_rgba(0,0,0,1)]
               md:shadow-[5px_5px_0_rgba(0,0,0,1)]
-              hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none
+              active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5
               focus:outline-none
             "
           >

@@ -46,7 +46,7 @@ export default function CollectToolbar({
 
       {/* Search bar — unchanged */}
       <div className="w-full flex-1 min-w-[200px] sm:min-w-[260px]">
-        <div className="flex items-center rounded-2xl border-[3px] md:border-[4px] border-black bg-white px-3 py-1 md:py-2 sm:px-4 shadow-cartoonTwo md:shadow-cartoon">
+        <div className="flex items-center rounded-2xl border-[3px] md:border-[4px] border-black bg-white px-3 py-1 md:py-2 sm:px-4 shadow-cartoonTwo md:shadow-cartoon hover:-translate-x-0.5 hover:-translate-y-0.5">
           <input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}

@@ -112,7 +112,7 @@ export default function HeaderNav() {
                   onClick={() => setWalletModalOpen(true)}
                 />
               </div>
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-black bg-white shadow-cartoon">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-black bg-white">
                 <span role="img" aria-label="avatar">
                   🧑‍🎨
                 </span>

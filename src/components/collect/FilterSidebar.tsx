@@ -128,7 +128,7 @@ function SidebarContent({
                 type="button"
                 onClick={() => setActiveTraitType((prev) => (prev === key ? null : key))}
                 className={`
-                  relative z-10 w-full px-4 py-3 text-sm font-extrabold transition-all duration-200 flex items-center justify-center
+                  relative z-10 w-full px-4 py-3 text-sm font-extrabold transition-all duration-100 flex items-center justify-center
                   border-4 border-black bg-white
                   ${isActive ? "rounded-t-2xl border-b-0" : "rounded-2xl"}
                   ${hasActiveFilter && !isActive ? "bg-gray-100" : ""}
@@ -143,7 +143,7 @@ function SidebarContent({
               {/* merged panel: border-t-0 so no divider; -mt to overlap the stroke and remove visible seam */}
               <div
                 className={`
-                  overflow-hidden bg-white transition-[max-height,opacity] duration-300 ease-in-out
+                  overflow-hidden bg-white transition-[max-height,opacity] duration-300 ease-in
                   -mt-[2.5px]
                   ${isActive ? "max-h-[520px] border-4 border-t-0 border-black rounded-b-[20px] opacity-100 pb-3" : "max-h-0 border-0 border-transparent opacity-0"}
                 `}

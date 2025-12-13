@@ -61,7 +61,7 @@ export default function WalletConnectModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-[24px] border-2 border-black bg-white p-5 shadow-[2px_2px_0px_#000000]">
+      <div className="w-full max-w-md rounded-[24px] border-[3px] border-black bg-white p-5 shadow-[2px_2px_0px_#000000]">
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wide">Connect Wallet</h2>
@@ -85,8 +85,8 @@ export default function WalletConnectModal({
               type="button"
               disabled={isConnectingLocal}
               onClick={() => handleSelectWallet(option.id)}
-              className={`group flex items-start gap-3 rounded-xl border-2 border-black bg-white px-3 py-3 text-left text-xs font-semibold transition-all shadow-cartoonTwo md:shadow-cartoon
-                ${isConnectingLocal ? "opacity-50 cursor-not-allowed" : "hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none"}
+              className={`group flex items-start gap-3 rounded-xl border-2 border-black bg-white px-3 py-3 text-left text-xs font-semibold shadow-cartoonTwo md:shadow-cartoon
+                ${isConnectingLocal ? "opacity-50 cursor-not-allowed" : "active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5"}
               `}
             >
               {/* Icon circle */}
