@@ -60,7 +60,6 @@ export async function getNFTDetailAction(chain: string, address: string, identif
 export async function getNFTOffersAction(chain: string, address: string, identifier: string) {
   try {
     // Protocol hardcoded ke 'seaport' karena itu standar OpenSea saat ini
-    // Pastikan function getNFTOffers sudah ada di src/lib/opensea.ts Anda
     const data = await openSeaClient.getNFTOffers(chain, "seaport", address, identifier);
     return data;
   } catch (error) {

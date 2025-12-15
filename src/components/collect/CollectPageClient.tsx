@@ -13,17 +13,25 @@ import { getNFTEventsAction } from "@/app/actions/nftActions";
 const ITEMS_PER_PAGE = 25;
 
 // [PENTING] Masukkan Contract Address Collection Anda di sini
-const COLLECTION_CONTRACT = "0x9e1dadf6eb875cf927c85a430887f2945039f923";
-const COLLECTION_CHAIN = "ethereum";
-
+const CONTRACTS: Record<string, string> = {
+  "parodee-pixel-chaos": "0x9e1dadf6eb875cf927c85a430887f2945039f923",
+  "parodee-hyperevm": "0x90df79459afc5fc58b7bfdca3c27c18b03a29d66",
+};
+const CHAINS: Record<string, string> = {
+  "parodee-pixel-chaos": "ethereum",
+  "parodee-hyperevm": "hyperevm", // Slug khusus HyperEVM di OpenSea
+};
 const ALLOWED_TRAIT_TYPES = ["Background", "Body", "Type", "Face", "Outfit"];
 
 type CollectPageClientProps = {
   initialItems: any[];
+  activeSlug: string; // <-- Tambahkan prop ini
 };
 
-export default function CollectPageClient({ initialItems }: CollectPageClientProps) {
-
+export default function CollectPageClient({ initialItems, activeSlug }: CollectPageClientProps) {
+  //kalo slug nggak ada di CONTRACTS, default ke pixel-chaos
+  const currentContract = CONTRACTS[activeSlug] || CONTRACTS["parodee-pixel-chaos"];
+  const currentChain = CHAINS[activeSlug] || "ethereum"; // Default ke ethereum
   // 1. Data langsung pakai dari props (JSON Lokal), tidak perlu state 'items' tambahan
   const items = initialItems;
 
@@ -142,12 +150,18 @@ export default function CollectPageClient({ initialItems }: CollectPageClientPro
   const handleOpenItem = async (item: any) => {
     setSelectedItem(item);
     setIsItemModalOpen(true);
-    setHistory([]); // Reset history lama
+    setHistory([]);
     setIsLoadingDetail(true);
 
     try {
-      // Fetch history events pakai Contract Constant
-      const historyData = await getNFTEventsAction(COLLECTION_CHAIN, COLLECTION_CONTRACT, item.identifier);
+      // 4. Update Action Call: Gunakan 'currentChain' (hyperevm/ethereum)
+      // Ini penting agar API OpenSea mencari di network yang benar
+      const historyData = await getNFTEventsAction(
+          currentChain, // <-- GANTI CONSTANT JADI VARIABLE
+          currentContract, 
+          item.identifier
+      );
+      
       if (historyData && historyData.asset_events) {
           setHistory(historyData.asset_events);
       }
@@ -200,6 +214,11 @@ export default function CollectPageClient({ initialItems }: CollectPageClientPro
       <CollectItemModal
         open={isItemModalOpen}
         item={selectedItem}
+        detail={{ 
+            ...selectedItem, 
+            contract: currentContract, 
+            chain: currentChain  // <-- INI KUNCINYA
+        }}
         history={history}
         isLoading={isLoadingDetail}
         onClose={() => setIsItemModalOpen(false)}
