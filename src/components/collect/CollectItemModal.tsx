@@ -88,6 +88,9 @@ export default function CollectItemModal({
   // --- STATE BARU UNTUK BIDS ---
   const [bids, setBids] = useState<any[]>([]);
   const [loadingBids, setLoadingBids] = useState(false);
+
+
+
   // Reset tab saat item berubah
   useEffect(() => {
     if (item) setActiveTab("attributes");
@@ -159,7 +162,7 @@ export default function CollectItemModal({
   const imageUrl = displayItem.image_url || displayItem.display_image_url;
   const traits = displayItem.traits || displayItem.attributes || [];
   const finalContractAddress = displayItem.contract || COLLECTION_CONTRACT;
-  
+
   // Logic Dummy Price (Ambil dari data asli jika ada, kalau tidak pakai placeholder)
   // Di real app, Anda ambil dari item.listings[0].price
   // const displayPrice = "0.25 ETH";
@@ -300,9 +303,12 @@ export default function CollectItemModal({
 
             {/* ACTIONS DESKTOP */}
             <div className="flex w-full gap-3">
-              <button className="flex-1 rounded-xl border-2 border-black bg-white px-6 py-2 text-[11px] font-black uppercase shadow-[2px_2px_0px_#000000] active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5">
+              <a href={`https://opensea.io/assets/${displayItem.chain || "ethereum"}/${finalContractAddress}/${displayItem.identifier}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center rounded-xl border-2 border-black bg-white px-6 py-2 text-[11px] font-black uppercase shadow-[2px_2px_0px_#000000] active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5">
                 NEW BID
-              </button>
+              </a>
               <a
                 href={`https://opensea.io/assets/${displayItem.chain || "ethereum"}/${finalContractAddress}/${displayItem.identifier}`}
                 target="_blank"
@@ -356,9 +362,12 @@ export default function CollectItemModal({
           </div>
 
           {/* ACTION ROW — SEJAJAR FIX */}
-          <button className="w-full rounded-xl border-2 border-black bg-white py-2 text-[11px] font-black uppercase shadow-[2px_2px_0px_#000000] active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5">
+          <a href={`https://opensea.io/assets/${displayItem.chain || "ethereum"}/${finalContractAddress}/${displayItem.identifier}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full rounded-xl border-2 border-black bg-white py-2 text-[11px] font-black uppercase shadow-[2px_2px_0px_#000000] active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5">
             NEW BID
-          </button>
+          </a>
 
           <a
             href={`https://opensea.io/assets/${displayItem.chain || "ethereum"}/${finalContractAddress}/${displayItem.identifier}`}
@@ -527,92 +536,129 @@ export default function CollectItemModal({
               )}
               {/* gw benerin bagian logic ini biar cuman tab bids yang harus login sisanya engga */}
              {/* --- TAB: BIDS (YANG KITA RUBAH) --- */}
+
               {activeTab === "bids" && (
-                  <div className="flex flex-col h-full">
-                    
-                    {/* 1. LIST DAFTAR BID (PUBLIC VIEW) */}
-                    {/* Ini ditampilkan ke SEMUA user (connect/not connect) */}
-                    <div className="flex-1 overflow-y-auto mb-4 border-b border-gray-100 pb-2 min-h-[100px]">
+                <div className="flex flex-col h-full">
+                  {/* 2. AREA AKSI (CONNECT / PLACE BID) */}
+                  <div className="mt-auto  border-t border-black/5">
+                      {isConnecting ? (
+                      <div className="flex flex-col h-full items-center justify-center min-h-[150px]">
+                          <div className="h-6 w-6 animate-spin rounded-full border-2 border-black border-t-transparent mb-2"></div>
+                          <p className="text-[10px] font-bold text-gray-500">Checking wallet session...</p>
+                      </div>
+                  ) : !isConnected ? (
+                    // 2. Jika Selesai Loading & Belum Connect -> Tampilkan Opsi Wallet
+                    <div className="flex flex-col h-full justify-center">
+                      <p className="mb-4 text-center text-[10px] font-bold text-gray-500 sm:text-xs">
+                        Connect wallet to view or place bids
+                      </p>
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        {WALLET_OPTIONS.map((option) => (
+                          <button
+                            key={option.label}
+                            disabled={isConnectingLocal}
+                            onClick={() => handleSelectWallet(option.id)}
+                            className={`
+                              rounded-xl border-2 border-black bg-white px-3 py-3
+                              text-left text-xs font-semibold shadow-cartoonTwo
+                              ${isConnectingLocal
+                                ? "opacity-50 cursor-not-allowed"
+                                : "active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5"
+                              }
+                            `}
+                          >
+                            <div className="flex items-center gap-2">
+
+                              {/* Icon wrapper */}
+                              <div className="
+                                h-6 w-6 flex-none
+                                rounded-full border-2 border-black
+                                bg-gray-100
+                                flex items-center justify-center
+                                overflow-hidden
+                              ">
+                                <img
+                                  src={option.icon}
+                                  alt={`${option.label} logo`}
+                                  className="h-4 w-4 object-contain"
+                                  onError={(e) => {
+                                    // Fallback text if the icon file is missing
+                                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                                    const parent = e.currentTarget.parentElement;
+                                    if (parent) parent.innerHTML = `<div class='text-[8px] font-bold text-gray-400'>IMG</div>`;
+                                  }}
+                                />
+                              </div>
+
+                              {/* Label text */}
+                              <div className="truncate">
+                                {isConnectingLocal ? "..." : option.label}
+                              </div>
+
+                            </div>
+                          </button>
+
+                          ))}
+                        </div>
+                      </div>
+                    )  : (
+
+                      // JIKA SUDAH CONNECT: Tombol Redirect ke OpenSea
+                    <>
+                      <div className="flex-1 overflow-y-auto text-[10px] sm:text-[11px] mb-4 border-b border-gray-100 pb-2 ">
                         {loadingBids ? (
-                             <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent"></div>
-                                <span className="text-[10px]">Loading bids...</span>
-                             </div>
+                          <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent"></div>
+                            <span className="text-[10px]">Loading bids...</span>
+                          </div>
                         ) : bids.length === 0 ? (
-                             <div className="flex flex-col items-center justify-center h-full text-gray-400 opacity-60">
-                                <div className="text-xl mb-1">📉</div>
-                                <p className="text-[10px] font-bold">No active bids on OpenSea</p>
-                             </div>
+                          <div className="flex flex-col items-center justify-center h-full text-gray-400 opacity-60 p-8">
+                            <div className="text-xl mb-1">📉</div>
+                            <p className="text-[10px] font-bold">No active bids on OpenSea</p>
+                          </div>
                         ) : (
-                             <table className="w-full text-left text-[10px]">
-                                <thead className="bg-gray-100 text-gray-500 sticky top-0">
-                                    <tr>
-                                        <th className="p-2 rounded-tl-lg">Price</th>
-                                        <th className="p-2">From</th>
-                                        <th className="p-2 rounded-tr-lg text-right">Expiration</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-100">
-                                    {bids.map((bid, i) => {
-                                        // Format Harga (Wei -> ETH)
-                                        const price = (parseInt(bid.current_price) / 1e18).toFixed(4);
-                                        const maker = shortenAddress(bid.maker.address);
-                                        const expDate = new Date(bid.expiration_time * 1000).toLocaleDateString();
-                                        
-                                        return (
-                                            <tr key={i}>
-                                                <td className="p-2 font-bold">{price} WETH</td>
-                                                <td className="p-2 text-gray-500">{maker}</td>
-                                                <td className="p-2 text-right text-gray-400">{expDate}</td>
-                                            </tr>
-                                        )
-                                    })}
-                                </tbody>
-                             </table>
-                        )}
-                    </div>
+                          <table className="w-full border-collapse">
+                            <thead>
+                              <tr className="border-b border-black/40 text-left">
+                                <th className="py-2 pr-4">Price</th>
+                                <th className="py-2 pr-4">From</th>
+                                <th className="p-2 rounded-tr-lg text-right">Expiration</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {bids.map((bid, i) => {
+                                // Format Harga (Wei -> ETH)
+                                const price = (parseInt(bid.current_price) / 1e18).toFixed(4);
+                                const maker = shortenAddress(bid.maker.address);
+                                const expDate = new Date(bid.expiration_time * 1000).toLocaleDateString();
 
-                    {/* 2. AREA AKSI (CONNECT / PLACE BID) */}
-                    <div className="mt-auto pt-2 border-t border-black/5">
-                        {isConnecting ? (
-                            <div className="flex justify-center py-2">
-                                <span className="text-[10px] font-bold text-gray-500 animate-pulse">Connecting wallet...</span>
-                            </div>
-                        ) : !isConnected ? (
-                            // JIKA BELUM CONNECT: Tampilkan Tombol Connect
-                            <div className="flex flex-col items-center gap-2">
-                                <p className="text-[10px] text-gray-400 font-medium">Connect wallet to place a bid</p>
-                                <div className="flex gap-2 w-full">
-                                    {WALLET_OPTIONS.slice(0, 2).map((opt) => (
-                                        <button 
-                                            key={opt.label}
-                                            onClick={() => handleSelectWallet(opt.id)}
-                                            disabled={isConnectingLocal}
-                                            className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg border-2 border-gray-200 hover:border-black transition-colors text-[10px] font-bold"
-                                        >
-                                            <img src={opt.icon} className="h-3 w-3" alt="" />
-                                            {opt.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        ) : (
-                            // JIKA SUDAH CONNECT: Tombol Redirect ke OpenSea
-                            <a 
-                              href={`https://opensea.io/assets/${displayItem.chain || "ethereum"}/${finalContractAddress}/${displayItem.identifier}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-black bg-black px-4 py-3 text-white shadow-cartoonTwo hover:bg-gray-900 transition-all hover:-translate-y-0.5"
-                            >
-                              <span className="text-xs font-black uppercase tracking-widest">
-                                Place Bid on OpenSea
-                              </span>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="mb-0.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                            </a>
+                                return (
+                                  <tr key={i} className="border-b border-black/10">
+                                    <td className="py-2 pr-4">{price} WETH</td>
+                                    <td className="py-2 pr-4">{maker}</td>
+                                    <td className="p-2 text-right text-gray-400">{expDate}</td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
                         )}
-                    </div>
-
+                      </div>
+                      <a
+                        href={`https://opensea.io/assets/${displayItem.chain || "ethereum"}/${finalContractAddress}/${displayItem.identifier}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-black bg-black px-4 py-3 text-white shadow-cartoonTwo hover:bg-gray-900 transition-all hover:-translate-y-0.5"
+                      >
+                        <span className="text-xs font-black uppercase tracking-widest">
+                          Place Bid on OpenSea
+                        </span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="mb-0.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                      </a>
+                    </>
+                    )}
                   </div>
+                </div>
               )}
 
           </div>
