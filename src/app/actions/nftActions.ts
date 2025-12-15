@@ -33,8 +33,6 @@ export async function getBestListingAction(chain: string, address: string, ident
   }
 }
 
-
-// Tambahkan function ini di file nftActions.ts
 export async function getCollectionTraitsAction(slug: string) {
   try {
     const data = await openSeaClient.getCollectionTraits(slug);
@@ -55,5 +53,18 @@ export async function getNFTDetailAction(chain: string, address: string, identif
   } catch (error) {
     console.error("Gagal fetch detail NFT:", error);
     return null;
+  }
+}
+
+// [BARU] Action untuk mengambil Offers (Bids Tab)
+export async function getNFTOffersAction(chain: string, address: string, identifier: string) {
+  try {
+    // Protocol hardcoded ke 'seaport' karena itu standar OpenSea saat ini
+    // Pastikan function getNFTOffers sudah ada di src/lib/opensea.ts Anda
+    const data = await openSeaClient.getNFTOffers(chain, "seaport", address, identifier);
+    return data;
+  } catch (error) {
+    console.error("Error fetching NFT offers:", error);
+    return { orders: [] }; // Return array kosong biar UI tidak error
   }
 }

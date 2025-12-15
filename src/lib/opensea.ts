@@ -3,9 +3,8 @@ const API_KEY = process.env.OPENSEA_API_KEY;
 const BASE_URL = "https://api.opensea.io/api/v2";
 
 async function fetchOpenSea(endpoint: string, options: RequestInit = {}) {
-  // PENTING: Untuk penggunaan di Client Component, pastikan API Key tersedia
-  // atau gunakan Server Action. Jika variabel ini undefined di client,
-  // Anda perlu menambahkan 'NEXT_PUBLIC_' prefix di .env atau gunakan proxy.
+  // PENTING: API Key ini biasanya hanya tersedia di Server Side.
+  // Pastikan Anda memanggil fungsi ini lewat Server Action atau API Route.
   if (!API_KEY) {
     console.warn("Missing OpenSea API Key. Requests might fail if not proxied.");
   }
@@ -23,6 +22,8 @@ async function fetchOpenSea(endpoint: string, options: RequestInit = {}) {
   const response = await fetch(`${BASE_URL}${endpoint}`, mergedOptions);
 
   if (!response.ok) {
+    // Kita return null atau throw error, tergantung preferensi.
+    // Throw error memudahkan debugging di server action.
     throw new Error(`OpenSea API Error: ${response.status} ${response.statusText}`);
   }
 
@@ -48,24 +49,32 @@ export const openSeaClient = {
     return fetchOpenSea(`/chain/${chain}/contract/${address}/nfts/${identifier}`);
   },
 
-  // [BARU] Fungsi untuk mengambil riwayat event (sale, transfer, list, dll)
+  // Fungsi untuk mengambil riwayat event (sale, transfer, list, dll)
   getNFTEvents: async (chain: string, address: string, identifier: string) => {
     return fetchOpenSea(
       `/events/chain/${chain}/contract/${address}/nfts/${identifier}?limit=20`,
       {
-        next: { revalidate: 0 }, // Opsi 1: Revalidate tiap 0 detik (selalu baru)
-        cache: 'no-store'        // Opsi 2: Matikan cache browser/server sepenuhnya
+        next: { revalidate: 0 }, // Selalu baru
+        cache: 'no-store'
       }
     );
   },
 
   getBestListing: async (chain: string, address: string, identifier: string) => {
-     // Listing harga juga harus real-time, jangan di-cache
      return fetchOpenSea(
         `/listings/chain/${chain}/nfts/${address}/${identifier}/best`,
         { cache: 'no-store' }
      );
   },
 
+  // [BARU] Fungsi untuk mengambil Offers / Bids
+  getNFTOffers: async (chain: string, protocol: string, address: string, identifier: string) => {
+    // protocol biasanya "seaport"
+    return fetchOpenSea(
+      `/orders/${chain}/${protocol}/offers?asset_contract_address=${address}&token_ids=${identifier}&order_by=eth_price&order_direction=desc`,
+      {
+        next: { revalidate: 60 }, // Cache 60 detik agar tidak terlalu sering hit API
+      }
+    );
+  },
 };
-
