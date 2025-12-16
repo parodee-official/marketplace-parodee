@@ -24,10 +24,10 @@ export default function CollectGrid({ items, onItemClick }: CollectGridProps) {
             onClick={() => onItemClick?.(nft)}
             className="
               relative flex aspect-square w-full cursor-pointer overflow-hidden
-              rounded-[16px] border-[3px] md:border-[4px] border-black bg-white
+              rounded-[18px]  md:rounded-[24px] border-[3px] md:border-[4px] border-black bg-white
               shadow-[3px_3px_0_rgba(0,0,0,1)]
-              md:shadow-[5px_5px_0_rgba(0,0,0,1)]
-              active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5
+              md:shadow-[6px_6px_0_rgba(0,0,0,1)]
+              active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:translate-x-1 hover:translate-y-1 hover:shadow-none
               focus:outline-none
             "
           >

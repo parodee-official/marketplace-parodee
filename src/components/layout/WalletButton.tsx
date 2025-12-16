@@ -35,7 +35,7 @@ export default function WalletButton({ label, onClick }: WalletButtonProps) {
       type="button"
       onClick={handleClick}
       className={`
-        rounded-lg border-[2.5px] border-black px-5 py-2 text-xs font-black uppercase tracking-wide shadow-cartoonTwo active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5
+        rounded-lg border-[2.5px] border-black px-6 py-2 text-sm font-black uppercase tracking-tight shadow-cartoonTwo active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5
         ${isConnecting ? "bg-gray-300 cursor-wait" : "bg-brand-yellow"}
       `}
     >

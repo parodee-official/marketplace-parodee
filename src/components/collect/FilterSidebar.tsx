@@ -47,11 +47,11 @@ function AttributeSelectorCard({
   }, [traitType]);
 
   return (
-    <div className={`px-4 ${compact ? "py-3" : "py-4"} bg-white`}>
+    <div className={`px-5 ${compact ? "py-3" : "py-4"} bg-white`}>
       <div className="flex gap-3">
         <div
           ref={listRef}
-          className={`flex-1 space-y-3 overflow-y-auto scrollbar-hide ${compact ? "h-[180px]" : "h-[200px]"} pr-2 text-sm`}
+          className={`flex-1 space-y-3 overflow-y-auto scrollbar-hide ${compact ? "h-[180px]" : "h-[200px]"} text-xs`}
         >
           {options.length === 0 ? (
             <p className="py-4 text-center text-xs italic text-gray-400">No traits found</p>
@@ -77,9 +77,9 @@ function AttributeSelectorCard({
           )}
         </div>
 
-        <div className={`${compact ? "ml-2 h-[180px]" : "ml-3 h-[200px]"} w-[6px] flex-shrink-0 rounded-full bg-gray-100 relative`}>
+        <div className={`${compact ? "ml-1 h-[180px]" : "ml-2 h-[200px]"} w-[6px] flex-shrink-0 rounded-full bg-[#D9D9D9] relative`}>
           <div
-            className="absolute w-full rounded-full bg-gray-400 transition-all duration-100 ease-out"
+            className="absolute w-full  bg-[#AFAFAF] transition-all duration-100 ease-out"
             style={{
               height: "40px",
               top: `${scrollRatio * ((compact ? 180 : 200) - 40)}px`,
@@ -110,12 +110,12 @@ function SidebarContent({
       <button
         type="button"
         onClick={onShowUnlistedClick}
-        className="w-full rounded-2xl border-[4px] border-black bg-white px-5 py-3 text-center text-sm font-extrabold text-black"
+        className="w-full rounded-2xl border-[4px] border-black bg-white px-5 py-3 text-center text-sm font-black text-black"
       >
         Show unlisted
       </button>
 
-      <div className="mx-1 h-[2px] bg-gray-200" />
+      <div className="mx-1 h-[2px] bg-[#AFAFAF] opacity-80" />
 
       <div className="flex flex-col gap-8">
         {traitKeys.map((key) => {
@@ -128,7 +128,7 @@ function SidebarContent({
                 type="button"
                 onClick={() => setActiveTraitType((prev) => (prev === key ? null : key))}
                 className={`
-                  relative z-10 w-full px-4 py-3 text-sm font-extrabold transition-all duration-100 flex items-center justify-center
+                  relative z-10 w-full px-4 py-3 text-sm font-black transition-all duration-100 flex items-center justify-center
                   border-4 border-black bg-white
                   ${isActive ? "rounded-t-2xl border-b-0" : "rounded-2xl"}
                   ${hasActiveFilter && !isActive ? "bg-gray-100" : ""}
@@ -167,9 +167,9 @@ function SidebarContent({
 /* ------------------ Desktop Sidebar (kept for completeness) ------------------ */
 export default function FilterSidebar(props: FilterSidebarProps) {
   return (
-    <aside className="hidden md:block md:w-[250px] flex-shrink-0">
+    <aside className="hidden md:block md:w-[230px] flex-shrink-0">
       <div
-        className="relative bg-white border-[4px] border-black rounded-[28px] p-5 shadow-cartoon"
+        className="relative bg-white border-[4px] border-black rounded-[28px] p-5 py-12 shadow-cartoon"
       >
         <SidebarContent {...props} />
       </div>
@@ -203,8 +203,8 @@ export function MobileFilterSidebar({
       >
 
         {/* header area */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-extrabold">Filters</h2>
+        <div className="flex items-center justify-end mb-6">
+          {/* <h2 className="text-lg font-extrabold">Filters</h2> */}
           <button
             onClick={onClose}
             aria-label="Close filters"

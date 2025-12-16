@@ -158,10 +158,10 @@ export default function CollectPageClient({ initialItems, activeSlug }: CollectP
       // Ini penting agar API OpenSea mencari di network yang benar
       const historyData = await getNFTEventsAction(
           currentChain, // <-- GANTI CONSTANT JADI VARIABLE
-          currentContract, 
+          currentContract,
           item.identifier
       );
-      
+
       if (historyData && historyData.asset_events) {
           setHistory(historyData.asset_events);
       }
@@ -180,7 +180,7 @@ export default function CollectPageClient({ initialItems, activeSlug }: CollectP
 
   return (
     <section className="mt-4 md:mt-6">
-      <div className="flex gap-8">
+      <div className="flex gap-10">
         <FilterSidebar
           availableTraits={availableTraits}
           selectedAttributes={selectedAttributes}
@@ -214,9 +214,9 @@ export default function CollectPageClient({ initialItems, activeSlug }: CollectP
       <CollectItemModal
         open={isItemModalOpen}
         item={selectedItem}
-        detail={{ 
-            ...selectedItem, 
-            contract: currentContract, 
+        detail={{
+            ...selectedItem,
+            contract: currentContract,
             chain: currentChain  // <-- INI KUNCINYA
         }}
         history={history}

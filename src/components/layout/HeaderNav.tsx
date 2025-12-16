@@ -13,7 +13,7 @@ import Image from "next/image";
 export default function HeaderNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams(); // 2. Hook untuk baca URL (?slug=...)
-  
+
   const [isWalletModalOpen, setWalletModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -30,8 +30,8 @@ export default function HeaderNav() {
 
   // 4. KONFIGURASI MENU COLLECT (Label + Slug)
   const collectMenuOptions = [
-    { label: "Parodee : Pixel Chaos", slug: "parodee-pixel-chaos" },
-    { label: "Parodee HyperEVM", slug: "parodee-hyperevm" },
+    { label: "Pixel Chaos", slug: "parodee-pixel-chaos" },
+    { label: "HyperEVM", slug: "parodee-hyperevm" },
   ];
 
   const merchMenuOptions = ["Merchandise", "Apparel", "Good", "Collectable"];
@@ -54,13 +54,13 @@ export default function HeaderNav() {
                   key={tab.href}
                   href={tab.href}
                   className={[
-                    "flex items-center justify-center min-w-[100px] px-6 text-lg font-black leading-none border-[3px] border-black bg-white transition-all duration-150",
+                    "flex items-center justify-center min-w-[130px] px-6 text-lg font-black leading-none border-[3px] border-black bg-white transition-all duration-150",
                     !active && isFirst && "rounded-bl-[23px]",
                     !active && isLast && "rounded-br-[23px] -ml-[2px]",
-                    active && isFirst && "rounded-l-[20px]",
-                    active && isLast && "rounded-r-[20px] -ml-[2px]",
+                    active && isFirst && "rounded-bl-[32px]",
+                    active && isLast && "rounded-br-[32px] -ml-[2px]",
                     active && !isFirst && !isLast && "rounded-[20px]",
-                    active ? "h-[32px] font-semibold" : "h-[46px] font-semibold",
+                    active ? "h-[38px] font-black" : "h-[56px] font-black",
                   ].filter(Boolean).join(" ")}
                 >
                   {tab.label}
@@ -81,15 +81,15 @@ export default function HeaderNav() {
               height={32}
               className="object-contain select-none"
             />
-            <span className="text-lg md:text-xl font-extrabold text-white">
+            <span className="text-xl md:text-2xl font-extrabold text-white">
               Marketplace
             </span>
           </Link>
 
           {/* Menu kecil – DESKTOP */}
           <nav className="hidden flex-1 items-center justify-center md:flex">
-            <div className="flex items-center gap-10 text-md md:text-lg">
-              
+            <div className="flex items-center gap-10 text-md md:text-xl">
+
               {/* LOGIC RENDERING MENU: */}
               {isCollect ? (
                 // A. JIKA HALAMAN COLLECT (Pakai Link dengan Slug)
@@ -99,15 +99,15 @@ export default function HeaderNav() {
                     <Link
                       key={option.slug}
                       // Saat diklik, URL berubah jadi /collect?slug=parodee-hyperevm
-                      href={`/collect?slug=${option.slug}`} 
+                      href={`/collect?slug=${option.slug}`}
                       className={[
                         "cursor-pointer whitespace-nowrap transition-colors",
                         isActive
-                          ? "font-semibold text-white underline decoration-2 underline-offset-4"
-                          : "font-normal text-white/80 hover:text-white text-sm",
+                          ? "font-bold text-white decoration-2 underline-offset-4"
+                          : "font-semibold text-white/80 hover:text-white text-sm",
                       ].join(" ")}
                     >
-                      {option.label}
+                      Parodee : {option.label}
                     </Link>
                   );
                 })
@@ -131,7 +131,7 @@ export default function HeaderNav() {
                   );
                 })
               )}
-              
+
             </div>
           </nav>
 
