@@ -28,6 +28,7 @@ export default function HeaderNav() {
     { href: "/merch", label: "Merch" },
   ];
 
+
   // 4. KONFIGURASI MENU COLLECT (Label + Slug)
   const collectMenuOptions = [
     { label: "Pixel Chaos", slug: "parodee-pixel-chaos" },
@@ -35,6 +36,17 @@ export default function HeaderNav() {
   ];
 
   const merchMenuOptions = ["Merchandise", "Apparel", "Good", "Collectable"];
+
+  const mobileMenuItems = isCollect
+  ? collectMenuOptions.map(option => ({
+      label: option.label,
+      href: `/collect?slug=${option.slug}`,
+    }))
+  : merchMenuOptions.map(label => ({
+      label,
+      href: `/merch?category=${label.toLowerCase()}`,
+    }));
+
 
   const ctaLabel = isCollect ? "CONNECT WALLET" : "LOGIN/SIGN UP";
 
@@ -173,8 +185,8 @@ export default function HeaderNav() {
       <MobileMainMenu
         open={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
-        // Kirim data menu yang sesuai context
-        smallMenu={isCollect ? collectMenuOptions.map(o => o.label) : merchMenuOptions}
+        // smallMenu={isCollect ? collectMenuOptions.map(o => o.label) : merchMenuOptions}
+        smallMenu={mobileMenuItems}
         ctaLabel={ctaLabel}
       />
 

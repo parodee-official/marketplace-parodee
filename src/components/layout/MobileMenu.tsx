@@ -2,11 +2,18 @@
 import { useState } from "react";
 import WalletButton from "./WalletButton";
 import WalletConnectModal from "./WalletConnectModal";
+import Link from "next/link";
+
+type MobileMenuItem = {
+  label: string;
+  href: string;
+};
 
 type MobileMainMenuProps = {
   open: boolean;
   onClose: () => void;
-  smallMenu: string[];
+  // smallMenu: string[];
+  smallMenu: MobileMenuItem[];
   ctaLabel: string;
 };
 
@@ -36,12 +43,14 @@ export default function MobileMenu({
             overflow-hidden
             min-h-[450px] max-h-[80vh]
             flex flex-col
+            py-6
+            px-7
           "
           role="dialog"
           aria-modal="true"
         >
           {/* === TOP: CTA + avatar (sticky top within card) */}
-          <div className="mx-auto pt-4">
+          <div className="mx-auto">
             <div className="flex items-center justify-between gap-3">
               <div className="flex-1">
                 <WalletButton
@@ -59,20 +68,21 @@ export default function MobileMenu({
           </div>
 
           {/* === CENTER: menu list (centered vertically & horizontally) */}
-          <div className="flex-1 flex items-center justify-center px-6">
+          <div className="flex-1 flex items-center justify-center">
             {/* inner container limits width and can scroll if many items */}
             <div className="w-full  flex flex-col items-center justify-center gap-4 overflow-y-auto py-2">
               {smallMenu.length === 0 ? (
                 <div className="text-sm text-gray-500">No menu</div>
               ) : (
-                smallMenu.map((label) => (
-                  <button
-                    key={label}
-                    type="button"
+                smallMenu.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={onClose}
                     className="w-full max-w-[260px] rounded-xl border-[3px] border-black bg-white px-4 py-3 text-center text-sm font-semibold shadow-[3px_3px_0px_#000000]"
                   >
-                    {label}
-                  </button>
+                    {item.label}
+                  </Link>
                 ))
               )}
             </div>

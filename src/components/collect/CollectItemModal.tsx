@@ -30,7 +30,7 @@ const DETAIL_TABS: { id: DetailTab; label: string }[] = [
 type WalletOption = {
   label: string;
   id: WalletId;
-  icon: string; 
+  icon: string;
   hint?: string;
 };
 
@@ -81,17 +81,17 @@ export default function CollectItemModal({
 
   // --- DEFINISI DATA UTAMA ---
   // Prioritaskan 'detail' karena dari CollectPageClient kita menyuntikkan contract address ke situ
-  const displayItem = detail || item; 
-  
+  const displayItem = detail || item;
+
   // Safe Access
   const safeItem = displayItem || {};
   const displayName = safeItem.name || `#${safeItem.identifier}`;
   const imageUrl = safeItem.image_url || safeItem.display_image_url;
   const traits = safeItem.traits || safeItem.attributes || [];
-  
+
   // [FIX 2] AMBIL CONTRACT LANGSUNG DARI ITEM
   // Jika undefined, biarkan undefined/string kosong, JANGAN fallback ke hardcode Pixel Chaos
-  const finalContractAddress = safeItem.contract || ""; 
+  const finalContractAddress = safeItem.contract || "";
 
   // --- FETCH BIDS ---
   useEffect(() => {
@@ -199,7 +199,7 @@ export default function CollectItemModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-3 sm:px-4">
       {/* CARD MODAL */}
       <div className="flex w-full max-w-2xl flex-col min-h-[70vh] sm:min-h-[300px] md:min-h-[350px] max-h-[70vh] md:max-h-[500px] rounded-[24px] border-[3px] border-black bg-white p-4 sm:p-6 shadow-cartoon">
-         
+
          {/* ===== HEADER Desktop ===== */}
         <div className="mb-6 hidden sm:flex flex-none items-start gap-6">
           <div className="flex-none h-36 w-36 sm:h-40 sm:w-40 rounded-[22px] border-[4px] border-black overflow-hidden bg-white shadow-[2px_2px_0px_#000000]">
@@ -236,7 +236,7 @@ export default function CollectItemModal({
           <div className="flex flex-col min-w-0">
             <div className="flex justify-between items-start mb-2 gap-3">
               <h2 className="text-[22px] font-black leading-tight">{displayName}</h2>
-              <button onClick={onClose} className="w-7 h-7 rounded-lg border-[3px] border-black bg-[#FF6467] font-black items-end active:translate-x-1 active:translate-y-1 active:shadow-none">✕</button>
+              <button onClick={onClose} className="w-7 h-7 rounded-lg border-[3px] border-black bg-[#FF6467] font-black shadow-[2px_2px_0px_#000000] items-end active:translate-x-1 active:translate-y-1 active:shadow-none">✕</button>
             </div>
             <div className="text-xs text-gray-700 max-h-[55px] overflow-y-auto mb-2">{displayItem.description}</div>
             <p className="text-md mb-2"><span className="font-bold text-[#636363]">Price:</span> <span className="font-black">{displayPrice}</span></p>

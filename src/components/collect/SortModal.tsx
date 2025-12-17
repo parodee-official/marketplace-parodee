@@ -32,7 +32,7 @@ export default function SortModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="relative w-full max-w-xs rounded-[24px] border-[3px] border-black bg-white p-5 shadow-cartoonTwo">
+      <div className="relative w-full max-w-xs rounded-[24px] border-[3px] border-black bg-white px-8 py-10 md:py-12 shadow-cartoonTwo">
 
         {/* 🔥 Close button floating di kanan atas */}
         <button
@@ -43,7 +43,7 @@ export default function SortModal({
           ✕
         </button>
 
-        <h3 className="mb-4 text-center text-lg font-bold">Sort by</h3>
+        <h3 className="mb-4 md:mb-6 text-center text-lg md:text-2xl font-black">Sort by</h3>
 
         <div className="space-y-2">
           {options.map((opt) => {
@@ -53,7 +53,7 @@ export default function SortModal({
                 key={opt.id}
                 type="button"
                 onClick={() => onChangeOption(opt.id)}
-                className="flex w-full items-center justify-between rounded-[12px] px-1 py-[6px] text-left text-sm"
+                className="flex w-full items-center justify-between rounded-[12px] px-1 py-[6px] text-left text-sm md:text-md"
               >
                 <span className="font-medium">{opt.label}</span>
                 {isActive && <span className="text-lg leading-none">✓</span>}
@@ -67,7 +67,7 @@ export default function SortModal({
             type="button"
             onClick={() => onChangeDirection("asc")}
             className={[
-              "flex-1 rounded-[16px] border-[3px] border-black px-4 py-2 text-sm font-semibold",
+              "flex-1 rounded-[12px] border-[3px] border-black px-4 py-2 text-sm font-semibold",
               direction === "asc" ? "bg-brand-yellow" : "bg-white",
             ].join(" ")}
           >
@@ -78,7 +78,7 @@ export default function SortModal({
             type="button"
             onClick={() => onChangeDirection("desc")}
             className={[
-              "flex-1 rounded-[16px] border-[3px] border-black px-4 py-2 text-sm font-semibold",
+              "flex-1 rounded-[12px] border-[3px] border-black px-4 py-2 text-sm font-semibold",
               direction === "desc" ? "bg-brand-yellow" : "bg-white",
             ].join(" ")}
           >

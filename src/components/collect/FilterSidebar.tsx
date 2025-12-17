@@ -130,7 +130,7 @@ function SidebarContent({
                 className={`
                   relative z-10 w-full px-4 py-3 text-sm font-black transition-all duration-100 flex items-center justify-center
                   border-4 border-black bg-white
-                  ${isActive ? "rounded-t-2xl border-b-0" : "rounded-2xl"}
+                  ${isActive ? "rounded-t-2xl border-b-0" : "rounded-2xl hover:bg-[#FFEC40]"}
                   ${hasActiveFilter && !isActive ? "bg-gray-100" : ""}
                 `}
               >
