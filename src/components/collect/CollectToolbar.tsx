@@ -67,10 +67,10 @@ export default function CollectToolbar({
         </div>
       </div>
 
-      {/* Sort icons */}
+      {/* Sort icons kotak bulat segitiga
       <div className="ml-2 md:ml-5 flex flex-none items-center gap-2 md:gap-3 pt-1 sm:pt-0">
 
-        {/* Kotak = featured */}
+        
         <button
           type="button"
           aria-label="Sort by featured"
@@ -86,7 +86,7 @@ export default function CollectToolbar({
           />
         </button>
 
-        {/* Bulat = newest */}
+       
         <button
           type="button"
           aria-label="Sort by newest"
@@ -102,7 +102,7 @@ export default function CollectToolbar({
           />
         </button>
 
-        {/* Segitiga = open sort menu */}
+        
         <button
           type="button"
           aria-label="Open sort menu"
@@ -125,9 +125,9 @@ export default function CollectToolbar({
             />
           </svg>
         </button>
+        
 
-
-      </div>
+      </div>*/}
     </div>
   );
 }

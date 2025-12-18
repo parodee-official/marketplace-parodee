@@ -106,17 +106,16 @@ function SidebarContent({
 
   return (
     <div className="w-full flex flex-col gap-6">
-      {/* Show unlisted (same visual as reference) */}
-      <button
+      {/* Show unlisted (same visual as reference) 
         type="button"
         onClick={onShowUnlistedClick}
         className="w-full rounded-2xl border-[4px] border-black bg-white px-5 py-3 text-center text-sm font-black text-black"
       >
         Show unlisted
       </button>
-
+        
       <div className="mx-1 h-[2px] bg-[#AFAFAF] opacity-80" />
-
+*/}
       <div className="flex flex-col gap-8">
         {traitKeys.map((key) => {
           const isActive = activeTraitType === key;
