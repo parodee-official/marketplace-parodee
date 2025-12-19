@@ -3,6 +3,7 @@ import { useState } from "react";
 import WalletButton from "./WalletButton";
 import WalletConnectModal from "./WalletConnectModal";
 import Link from "next/link";
+import Image from "next/image";
 
 type MobileMenuItem = {
   label: string;
@@ -91,22 +92,39 @@ export default function MobileMenu({
           {/* === BOTTOM: icons row (sticky bottom) */}
           <div className="px-4 pb-4">
             <div className="flex items-center justify-center gap-4">
-              <button
-                type="button"
-                className="flex h-9 w-9 items-center justify-center rounded-lg border-[2.5px] shadow-cartoonTwo border-black bg-white active:translate-x-1 active:translate-y-1 active:shadow-none"
-                aria-label="misc"
-              >
-                🎮
-              </button>
+              <Link
+                  href="https://discord.com/invite/rjwjQZSg5k"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={onClose}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border-[2.5px] border-black bg-white shadow-cartoonTwo
+                            active:translate-x-1 active:translate-y-1 active:shadow-none"
+                  aria-label="Discord"
+                >
+                  <Image
+                    src="/icon/discord.svg"
+                    alt="Discord"
+                    width={18}
+                    height={18}
+                  />
+                </Link>
 
-              <button
-                type="button"
+              <Link
+                href="https://x.com/parodeenft"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border-[2.5px] border-black bg-white shadow-cartoonTwo
+                          active:translate-x-1 active:translate-y-1 active:shadow-none"
+                aria-label="Twitter"
                 onClick={onClose}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border-[2.5px] shadow-cartoonTwo border-black bg-white active:translate-x-1 active:translate-y-1 active:shadow-none"
-                aria-label="close menu"
               >
-                ✕
-              </button>
+                <Image
+                  src="/icon/twitter-x.svg"
+                  alt="Twitter"
+                  width={18}
+                  height={18}
+                />
+              </Link>
             </div>
           </div>
         </div>

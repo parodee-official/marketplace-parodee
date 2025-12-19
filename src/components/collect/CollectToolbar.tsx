@@ -28,13 +28,13 @@ export default function CollectToolbar({
   };
 
   return (
-    <div className="mb-10 flex  items-center gap-2 sm:gap-3">
+    <div className="mb-10 flex  items-center gap-4 sm:gap-5">
 
       {/* Filter icon – mobile only */}
       <button
         type="button"
         onClick={() => onOpenFilter?.()}
-        className="flex h-9 w-9 flex-none items-center justify-center rounded-lg border-[3px] border-black bg-white shadow-cartoonTwo md:hidden active:translate-x-1 active:translate-y-1 active:shadow-none"
+        className="flex h-9 w-9 flex-none items-center justify-center rounded-lg border-[3px] border-black bg-white shadow-[4px_4px_0_rgba(0,0,0,1)] md:hidden active:translate-x-1 active:translate-y-1 active:shadow-none"
         aria-label="Open filters"
       >
         <div className="flex flex-col gap-[3px]">
@@ -46,7 +46,7 @@ export default function CollectToolbar({
 
       {/* Search bar — unchanged */}
       <div className="w-full flex-1 min-w-[200px] sm:min-w-[250px]">
-        <div className="flex items-center rounded-[20px] border-[3px] md:border-[4px] border-black bg-white px-3 py-1 md:py-2 sm:px-4 shadow-cartoonTwo md:shadow-cartoon hover:-translate-x-0.5 hover:-translate-y-0.5">
+        <div className="flex items-center rounded-[20px] border-[3px] md:border-[4px] border-black bg-white px-3 py-1 md:py-2 sm:px-4 shadow-[4px_4px_0_rgba(0,0,0,1)] md:shadow-cartoon hover:-translate-x-0.5 hover:-translate-y-0.5">
           <input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -70,7 +70,7 @@ export default function CollectToolbar({
       {/* Sort icons kotak bulat segitiga
       <div className="ml-2 md:ml-5 flex flex-none items-center gap-2 md:gap-3 pt-1 sm:pt-0">
 
-        
+
         <button
           type="button"
           aria-label="Sort by featured"
@@ -86,7 +86,7 @@ export default function CollectToolbar({
           />
         </button>
 
-       
+
         <button
           type="button"
           aria-label="Sort by newest"
@@ -102,7 +102,7 @@ export default function CollectToolbar({
           />
         </button>
 
-        
+
         <button
           type="button"
           aria-label="Open sort menu"
@@ -125,7 +125,7 @@ export default function CollectToolbar({
             />
           </svg>
         </button>
-        
+
 
       </div>*/}
     </div>

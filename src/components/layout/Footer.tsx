@@ -4,7 +4,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-brand-blue">
-      <div className="mx-auto flex max-w-6xl flex-col items-center px-4 py-3">
+      <div className="mx-auto flex flex-col items-center px-4 py-3">
         {/* Garis tipis di tengah, tidak full-bleed ke edge window */}
         <div className="mb-5 h-[1px] w-full max-w-5xl bg-black" />
 

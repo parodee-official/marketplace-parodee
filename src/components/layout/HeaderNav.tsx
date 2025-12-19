@@ -52,7 +52,7 @@ export default function HeaderNav() {
 
   return (
     <header className="sticky top-0 z-30 bg-brand-blue">
-      <div className="relative mx-auto max-w-6xl px-6 pt-7 pb-3 md:pb-6">
+      <div className="relative mx-auto px-6 md:px-8 pt-7 pb-3 md:pb-6">
         {/* TAB BESAR (DESKTOP) */}
         <div className="pointer-events-auto absolute left-1/2 -top-2.5 hidden -translate-x-1/2 md:block">
           <div className="inline-flex">
@@ -168,7 +168,7 @@ export default function HeaderNav() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-lg border-[3px] border-black bg-white shadow-cartoonTwo md:hidden active:translate-x-1 active:translate-y-1 active:shadow-none"
+              className="flex h-10 w-10 items-center justify-center rounded-lg border-[3px] border-black bg-white shadow-[4px_4px_0_rgba(0,0,0,1)] md:hidden active:translate-x-1 active:translate-y-1 active:shadow-none"
               aria-label="Open menu"
             >
               <div className="flex flex-col gap-[3px]">

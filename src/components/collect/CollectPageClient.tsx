@@ -90,9 +90,26 @@ export default function CollectPageClient({ initialItems, activeSlug }: CollectP
     const q = search.trim().toLowerCase();
     if (q) {
       result = result.filter((item: any) => {
+        // 1. Cek Nama Item
         const name = (item.name ?? "").toLowerCase();
+
+        // 2. Cek Identifier (Token ID)
         const id = String(item.identifier ?? "").toLowerCase();
-        return name.includes(q) || id.includes(q);
+
+        // 3. Cek Attributes (Traits)
+        const attributes = item.attributes || [];
+        // .some() akan return true jika ada MINIMAL SATU attribute yang cocok
+        const hasMatchingAttribute = attributes.some((t: any) => {
+          const traitValue = String(t.value ?? "").toLowerCase();
+          const traitType = String(t.trait_type ?? "").toLowerCase();
+
+          // Cek apakah search query ada di value (misal: "Red")
+          // atau di tipe traitnya (misal: "Background")
+          return traitValue.includes(q) || traitType.includes(q);
+        });
+
+        // Return true jika salah satu kondisi terpenuhi
+        return name.includes(q) || id.includes(q) || hasMatchingAttribute;
       });
     }
 
@@ -120,12 +137,15 @@ export default function CollectPageClient({ initialItems, activeSlug }: CollectP
        // Featured / Default: Sort by ID Ascending
        result.sort((a, b) => parseInt(a.identifier) - parseInt(b.identifier));
     }
-       
+
 
     if (sortDirection === "desc") result.reverse();
   */
     return result;
   }, [items, search, selectedAttributes]);
+
+
+
   /*[items, search, sortMode, sortDirection, selectedAttributes]);*/
 
   // Pagination
